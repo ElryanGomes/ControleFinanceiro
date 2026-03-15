@@ -1,0 +1,190 @@
+/* 1. VARIÁVEIS E RESET (Mantendo a paleta do Dashboard) */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-dark: #050a14;
+    --card-bg: #0a192f;
+    --text-main: #e6f1ff;
+    --accent-cyan: #00f2ff;
+    --accent-purple: #bc13fe;
+    --gain-green: #64ffda;
+    --loss-pink: #ff007f;
+    --border-color: rgba(0, 242, 255, 0.2);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 2. ESTILO DOS CARDS DE FORMULÁRIO */
+.card {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.card-ganhos {
+    border-color: rgba(100, 255, 218, 0.3) !important;
+}
+
+.card-despesas {
+    border-color: rgba(0, 242, 255, 0.3) !important;
+}
+
+.titulo-form {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+/* 3. INPUTS E SELECTS (ESTILO DARK) */
+.form-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control, .form-select {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid var(--border-color) !important;
+    color: white !important;
+    height: 45px;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(0, 242, 255, 0.05) !important;
+    border-color: var(--accent-cyan) !important;
+    box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+    outline: none;
+}
+
+/* Fundo escuro para as opções do select */
+.form-select option {
+    background-color: var(--bg-dark);
+    color: white;
+}
+
+/* 4. BOTÕES PERSONALIZADOS */
+.btn-registrar {
+    height: 48px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-ganho {
+    background: var(--gain-green);
+    color: var(--bg-dark);
+}
+
+.btn-ganho:hover {
+    background: #52d1b2;
+    box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-despesa {
+    background: var(--accent-cyan);
+    color: var(--bg-dark);
+}
+
+.btn-despesa:hover {
+    background: #00d4e0;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* 5. AJUSTE DO CALENDÁRIO */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* 6. REAPROVEITANDO O HEADER (Caso você use na Editar também) */
+.header-main {
+    background: rgba(5, 10, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 3rem;
+}
+
+.nav-link-custom {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.9rem;
+    opacity: 0.6;
+    transition: 0.3s;
+}
+
+.nav-link-custom.active {
+    opacity: 1;
+    color: var(--accent-cyan);
+}
+
+/* NAVEGAÇÃO (MESMO PADRÃO DASHBOARD) */
+.header-main {
+    background: rgba(5, 10, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 1rem 3rem; /* Ajuste de respiro lateral */
+}
+
+.nav-link-custom {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+    position: relative;
+}
+
+.nav-link-custom i {
+    font-size: 1.1rem;
+}
+
+.nav-link-custom:hover, .nav-link-custom.active {
+    opacity: 1;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+}
+
+/* Linha indicadora embaixo do link ativo */
+.nav-link-custom.active::after {
+    content: '';
+    position: absolute;
+    bottom: -22px; /* Ajustado para colar na borda do header */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.titulo-pagina h2 {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
