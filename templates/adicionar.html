@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/adicionar.css') }}">
+    <title>Gerenciar Finanças</title>
+</head>
+
+<body>
+
+    <header class="header-main">
+        <nav class="d-flex justify-content-between align-items-center">
+            <div class="nav-paginas d-flex gap-4">
+                <a href="{{ url_for('index') }}" class="nav-link-custom">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+
+                <a href="{{ url_for('adicionar') }}" class="nav-link-custom active">
+                    <i class="bi bi-pencil-square"></i> Adicionar
+                </a>
+
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-trophy"></i> Metas
+                </a>
+
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-gear"></i> Ajustes
+                </a>
+            </div>
+
+            <div class="titulo-pagina text-end">
+                <h2 class="m-0 tracking-widest text-uppercase h4">
+                    Controle <span style="color: var(--accent-cyan)">Financeiro</span>
+                    <small class="ms-2 opacity-50" style="font-size: 0.8rem;">| Adicionar</small>
+                </h2>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-5">
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card p-4 card-ganhos h-100">
+                    <h3 class="titulo-form" style="color: var(--gain-green)">
+                        <i class="bi bi-cash-stack"></i> Meus Ganhos
+                    </h3>
+                    <form action="{{ url_for('adicionar_ganho') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nome / Origem</label>
+                            <input type="text" name="nome_ganho" class="form-control"
+                                placeholder="Ex: Salário, Freelance...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Valor Recebido</label>
+                            <input type="number" step="0.01" name="valor_ganho" class="form-control"
+                                placeholder="R$ 0,00">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Data do Recebimento</label>
+                            <input type="date" name="data_ganho" class="form-control">
+                        </div>
+                        <button type="submit" class="btn-registrar btn-ganho">Registrar Ganho</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card p-4 card-despesas h-100">
+                    <h3 class="titulo-form" style="color: var(--accent-cyan)">
+                        <i class="bi bi-cart-plus"></i> Registrar Gasto
+                    </h3>
+                    <form action="{{ url_for('adicionar_gasto') }}" method="POST">
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label class="form-label">O que você comprou?</label>
+                                <input type="text" name="nome_item" class="form-control"
+                                    placeholder="Ex: Lanche, Celular..." required>
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <label class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select">
+                                    <option value="Alimentação">Alimentação</option>
+                                    <option value="Transporte">Transporte</option>
+                                    <option value="Lazer">Lazer</option>
+                                    <option value="Eletrônicos">Eletrônicos</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Valor Total do Item</label>
+                                <input type="number" step="0.01" name="valor_total" class="form-control"
+                                    placeholder="R$ 0,00" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Forma de Pagamento</label>
+                                <select name="tipo_pagamento" id="tipo_pagamento" class="form-select"
+                                    onchange="toggleParcelas()">
+                                    <option value="Unico">Pagamento Único (À vista)</option>
+                                    <option value="Parcelado">Parcelado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="secao_parcelas"
+                            style="display: none; border-left: 2px solid var(--accent-cyan); padding-left: 15px; margin-bottom: 20px;">
+                            <p class="text-info style=" font-size: 0.75rem;"><i class="bi bi-info-circle"></i> Detalhes
+                                do Parcelamento</p>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Valor da Parcela Mensal</label>
+                                    <input type="number" step="0.01" name="valor_parcela" class="form-control"
+                                        placeholder="R$ 0,00">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Quantas parcelas já pagou?</label>
+                                    <input type="number" name="parcelas_pagas" class="form-control" placeholder="Ex: 0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Data da Compra/Início</label>
+                            <input type="date" name="data_gasto" class="form-control" required>
+                        </div>
+
+                        <button type="submit" class="btn-registrar btn-despesa">
+                            <i class="bi bi-check-all"></i> Salvar Gasto
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        function toggleParcelas() {
+            const tipo = document.getElementById('tipo_pagamento').value;
+            const secao = document.getElementById('secao_parcelas');
+            if (tipo === 'Parcelado') {
+                secao.style.display = 'block';
+            } else {
+                secao.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
