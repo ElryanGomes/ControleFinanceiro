@@ -4,124 +4,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="static/css/style.css">
-    <title>DashBoard</title>
-
+    <title>Controle Financeiro - Dashboard</title>
 </head>
 
 <body>
 
-    <header>
-        <nav class="d-flex justify-content-between m-3 mb-4">
-            <div class="paginas flex-row d-flex align-items-center gap-3">
-                <p>DashBoard</p>
-                <p>Editar</p>
-                <p>Status</p>
+    <header class="header-main px-5 py-3">
+        <nav class="d-flex justify-content-between align-items-center">
+            <div class="nav-paginas d-flex gap-4">
+                <a href="index.html" class="nav-link-custom active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="editar.html" class="nav-link-custom">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-trophy"></i> Metas
+                </a>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-gear"></i> Ajustes
+                </a>
             </div>
-            <div class="titulo h1">DashBoard</div>
+
+            <div class="titulo-pagina text-end">
+                <h2 class="m-0 tracking-widest text-uppercase h4">
+                    Controle <span style="color: var(--accent-cyan)">Financeiro</span>
+                    <small class="ms-2 opacity-50" style="font-size: 0.8rem;">| Dashboard</small>
+                </h2>
+            </div>
         </nav>
     </header>
 
-    <section id="resume">
-        <div class="cards-situacao d-flex justify-content-end gap-4 m-3 me-5">
+    <section id="dashboard-header" class="px-5 mt-4">
+    <div class="d-flex align-items-stretch justify-content-between">
 
-            <div class="card text-bg-primary" style="max-width: 20rem;">
-                <div class="titulo-card card-header d-flex justify-content-between align-items-center">
-                    <div class="h3">Ganhos</div>
-                    <button type="button" class="btn btn-link link-light">Link</button>
+        <div class="painel-meses card p-3">
+            <div class="d-flex align-items-center h-100">
+                <div class="meses-grid">
+                    <button class="btn-mes active">Jan</button>
+                    <button class="btn-mes">Fev</button>
+                    <button class="btn-mes">Mar</button>
+                    <button class="btn-mes">Abr</button>
+                    <button class="btn-mes">Mai</button>
+                    <button class="btn-mes">Jun</button>
+                    <button class="btn-mes">Jul</button>
+                    <button class="btn-mes">Ago</button>
+                    <button class="btn-mes">Set</button>
+                    <button class="btn-mes">Out</button>
+                    <button class="btn-mes">Nov</button>
+                    <button class="btn-mes">Dez</button>
                 </div>
-                <div class="card-body">
-                    <p class="card-text h5" id="ganhos">$ 750,00</p>
+                <div class="divisor-vertical mx-3"></div>
+                <div class="seletor-anos-col">
+                    <button class="btn-ano active">2025</button>
+                    <button class="btn-ano">2024</button>
                 </div>
             </div>
+        </div>
 
-            <div class="card text-bg-danger" style="max-width: 20rem;">
-                <div class="titulo-card card-header d-flex justify-content-between align-items-center">
-                    <div class="h3">Gastos</div>
-                    <button type="button" class="btn btn-link link-light">Link</button>
+        <div class="painel-cards">
+            <div class="d-flex gap-3 h-100">
+                <div class="card card-dashboard card-ganhos" style="width: 220px;">
+                    <div class="card-header-mini">
+                        <span class="label">Entradas</span>
+                        <i class="bi bi-arrow-up-right-circle text-success"></i>
+                    </div>
+                    <div class="valor" id="ganhos">R$ 2.450,00</div>
+                    <div class="card-footer-mini">Referente ao mês</div>
                 </div>
-                <div class="card-body">
-                    <p class="card-text h5" id="gastos">$ 720,00</p>
+
+                <div class="card card-dashboard card-gastos" style="width: 220px;">
+                    <div class="card-header-mini">
+                        <span class="label">Saídas</span>
+                        <i class="bi bi-arrow-down-left-circle text-danger"></i>
+                    </div>
+                    <div class="valor" id="gastos">R$ 1.120,00</div>
+                    <div class="card-footer-mini">Previsão de débitos</div>
+                </div>
+
+                <div class="card card-dashboard card-restante" style="width: 220px;">
+                    <div class="card-header-mini">
+                        <span class="label">Saldo Livre</span>
+                        <i class="bi bi-lightning-charge-fill text-info"></i>
+                    </div>
+                    <div class="valor" id="restante">R$ 1.330,00</div>
+                    <div class="card-footer-mini">Disponível agora</div>
                 </div>
             </div>
+        </div>
 
-            <div class="card text-bg-warning" style="max-width: 20rem;">
-                <div class="titulo-card card-header d-flex justify-content-between align-items-center">
-                    <div class="h3">Restante</div>
-                    <button type="button" class="btn btn-link link-light">Link</button>
+    </div>
+</section>
+
+    <section id="tools-bar" class="px-5 mt-4">
+        <div class="card p-3">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-info border-end-0">
+                            <i class="bi bi-search text-info"></i>
+                        </span>
+                        <input type="text" class="form-control border-info border-start-0 border-end-0 ps-0" placeholder="Buscar transação...">
+                        <button class="btn btn-outline-info px-4 fw-bold" type="button" id="btn-buscar">BUSCAR</button>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p class="card-text h5" id="restante">$ 30,00</p>
+
+                <div class="col-md-3">
+                    <select class="form-select border-info">
+                        <option selected>Todas Categorias</option>
+                        <option>Fixo</option>
+                        <option>Variado</option>
+                        <option>Lazer</option>
+                        <option>Essencial</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <select class="form-select border-info">
+                        <option selected>Todos Status</option>
+                        <option>Pendente</option>
+                        <option>Concluído</option>
+                    </select>
                 </div>
             </div>
-
         </div>
     </section>
 
-    <section id="filters">
-        <div class="filter-search d-grid ms-5 me-5" style="grid-template-columns: 1fr 1fr; gap: 15rem;">
-            <select class="form-select m-auto w-100" id="floatingSelect" aria-label="Floating label select example">
-                <option selected>Todos</option>
-                <option value="1">Tipo</option>
-                <option value="2">Preço</option>
-                <option value="3">Nome</option>
-            </select>
+    <section id="itens-lista" class="px-5 mt-4">
+        <div class="d-flex text-uppercase fw-bold mb-2 px-4 opacity-50" style="font-size: 0.65rem; letter-spacing: 2.5px; color: var(--accent-cyan);">
+            <div style="flex: 2;">Descrição / Categoria</div>
+            <div style="flex: 1;">Valor Total</div>
+            <div style="flex: 1;">Já Possuído</div>
+            <div style="flex: 1;">Falta</div>
+            <div style="flex: 1; text-align: right;">Status</div>
+        </div>
 
-            <form class="search d-flex gap-3">
-                <div class="m-auto w-100">
-                    <input type="text" class="form-control" placeholder="Pesquisar..." aria-label="City">
+        <div id="container-transacoes">
+            <div class="item-financeiro d-flex align-items-center p-3 mb-3">
+                <div class="info-principal" style="flex: 2;">
+                    <span class="d-block text-white fw-bold">Parcela Celular</span>
+                    <small class="text-muted">Fixo • Tecnologia</small>
                 </div>
-                <button type="button" class="btn btn-primary">Buscar</button>
-            </form>
+                <div class="valor-total valor-destaque" style="flex: 1;">R$ 190,00</div>
+                <div class="valor-possuido" style="flex: 1;">R$ 100,00</div>
+                <div class="valor-falta" style="flex: 1;">R$ 90,00</div>
+                <div class="status-badge" style="flex: 1; text-align: right;">
+                    <span class="badge-pendente">Pendente</span>
+                </div>
+            </div>
         </div>
     </section>
 
-
-    
-    <section id="table">
-        <table class="table mt-5 mb-4 m-auto" style="width: 90%;">
-            <thead>
-                <tr>
-                    <th scope="col">Descrição</th>
-                    <th scope="col">Valor</th>
-                    <th scope="col">Possuído</th>
-                    <th scope="col">Falta</th>
-                    <th scope="col">Situação</th>
-                </tr>
-            </thead>
-            <tbody class="table-group-divider">
-                <tr>
-                    <th scope="row">Parcela Celular</th>
-                    <td>190,00</td>
-                    <td>100,00</td>
-                    <td>90,00</td>
-                    <td>Pendente</td>
-                </tr>
-                <tr>
-                    <th scope="row">Parcela Mochila</th>
-                    <td>75,00</td>
-                    <td>0,00</td>
-                    <td>75,00</td>
-                    <td>Pendente</td>
-                </tr>
-                <tr>
-                    <th scope="row">Cabelo</th>
-                    <td>60,00</td>
-                    <td>30,00</td>
-                    <td>30,00</td>
-                    <td>Pendente</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="static/js/main.js"></script>
 </body>
-
 </html>

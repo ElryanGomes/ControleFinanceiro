@@ -5,7 +5,9 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-
+@app.route('/editar')
+def editar():
+    return render_template('editar.html')
 
 
 

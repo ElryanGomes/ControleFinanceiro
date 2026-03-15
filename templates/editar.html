@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <section class="px-5 mt-4">
+    <div class="row g-4">
+        
+        <div class="col-md-6">
+            <div class="card p-4 border-success-subtle h-100">
+                <h3 class="h5 mb-4 text-success d-flex align-items-center gap-2">
+                    <i class="bi bi-cash-stack"></i> Novo Ganho
+                </h3>
+                <form id="form-ganho">
+                    <div class="mb-3">
+                        <label class="form-label small opacity-75">Origem / Fonte</label>
+                        <input type="text" class="form-control" placeholder="Ex: Salário, Freelance...">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small opacity-75">Valor</label>
+                            <input type="number" class="form-control border-success" placeholder="R$ 0,00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small opacity-75">Data de Recebimento</label>
+                            <input type="date" class="form-control">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 mt-3">Registrar Entrada</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4 border-info h-100">
+                <h3 class="h5 mb-4 text-info d-flex align-items-center gap-2">
+                    <i class="bi bi-cart-plus"></i> Novo Gasto / Evolução
+                </h3>
+                <form id="form-gasto">
+                    <div class="mb-3">
+                        <label class="form-label small opacity-75">Descrição do Item</label>
+                        <input type="text" class="form-control" placeholder="Ex: Monitor Novo">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label small opacity-75">Valor Total</label>
+                            <input type="number" class="form-control border-info" placeholder="R$ 0,00">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label small opacity-75">Já Possuo</label>
+                            <input type="number" class="form-control" placeholder="R$ 0,00">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label small opacity-75">Categoria</label>
+                            <select class="form-select">
+                                <option>Tecnologia</option>
+                                <option>Saúde</option>
+                                <option>Lazer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Registrar Saída</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</section>
+</body>
+</html>
