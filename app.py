@@ -45,6 +45,7 @@ def adicionar_gasto():
     nome = request.form.get('nome_item')
     categoria = request.form.get('categoria')
     tipo_pagamento = request.form.get('tipo_pagamento')
+    status = request.form.get('status_pagamento') # Novo: Pega se é Pago, Reservado ou Pendente
     data = request.form.get('data_gasto')
     
     try:
@@ -56,6 +57,7 @@ def adicionar_gasto():
         'nome': nome,
         'valor_total': valor_total,
         'tipo': tipo_pagamento,
+        'status': status,
         'data': data,
         'categoria': categoria
     }
@@ -65,25 +67,22 @@ def adicionar_gasto():
             v_parcela = float(request.form.get('valor_parcela') or 0)
             p_pagas = int(request.form.get('parcelas_pagas') or 0)
             
-            # Se não informou valor da parcela, assume o total
             if v_parcela <= 0: v_parcela = valor_total
-            
             total_p = int(valor_total / v_parcela) if v_parcela > 0 else 1
             
             dados_gasto.update({
                 'valor_mensal': v_parcela,
                 'parcelas_pagas': p_pagas,
                 'total_parcelas': total_p,
-                'falta_pagar': valor_total - (v_parcela * p_pagas),
-                'status': 'Parcelado'
+                'falta_pagar': valor_total - (v_parcela * p_pagas)
             })
         except (ValueError, ZeroDivisionError):
-            dados_gasto.update({'valor_mensal': valor_total, 'falta_pagar': 0, 'status': 'Pago'})
+            dados_gasto.update({'valor_mensal': valor_total, 'falta_pagar': 0})
     else:
+        # Gasto único
         dados_gasto.update({
             'valor_mensal': valor_total,
-            'falta_pagar': 0,
-            'status': 'Pago'
+            'falta_pagar': 0
         })
 
     if nome and valor_total > 0:

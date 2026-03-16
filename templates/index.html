@@ -136,53 +136,110 @@
         </div>
     </section>
 
-    <div id="itens-lista" class="mt-4">
+
+
+
+    
+    <div id="itens-lista" class="mt-4 px-5">
         <div class="row px-4 mb-2 opacity-50 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
-            <div class="col-md-4">Descrição</div>
-            <div class="col-md-2 text-center">Valor Total</div>
-            <div class="col-md-2 text-center">Já Possuo</div>
-            <div class="col-md-2 text-center">Falta</div>
-            <div class="col-md-2 text-end">Status</div>
+            <div class="col-4">Descrição</div>
+            <div class="col-4 text-center">Valor do Mês</div>
+            <div class="col-4 text-end">Status</div>
         </div>
 
         {% for item in gastos %}
-        <div class="item-financeiro row align-items-center p-3 mb-3 mx-0">
-            <div class="col-md-4 info-principal">
+        <div class="item-financeiro row align-items-center p-3 mx-0 mb-3" onclick="abrirDetalhes('{{ loop.index0 }}')">
+            <div class="col-4">
                 <div class="d-flex align-items-center">
                     <span
                         class="dot {% if item.tipo == 'Parcelado' %}dot-parcelado{% else %}dot-unico{% endif %}"></span>
-
-                    <div class="ms-2">
-                        <span class="d-block fw-bold">{{ item.nome }}</span>
-                        <small class="text-muted">
-                            {{ item.categoria }}
-                            {% if item.tipo == 'Parcelado' %}
-                            (Parc. {{ item.parcelas_pagas }}/{{ item.total_parcelas }})
-                            {% endif %}
-                        </small>
+                    <div class="ms-3">
+                        <span class="d-block fw-bold text-white">{{ item.nome }}</span>
+                        <small class="text-muted-custom d-block">{{ item.categoria }} • {{ item.tipo }}</small>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-2 text-center valor-destaque">
-                R$ {{ "{:,.2f}".format(item.valor_total | default(0)) }}
+            <div class="col-4 text-center">
+                <span class="fw-bold text-white">
+                    R$ {{ "{:,.2f}".format(item.valor_mensal | default(0)).replace(',', 'v').replace('.',
+                    ',').replace('v', '.') }}
+                </span>
             </div>
 
-            <div class="col-md-2 text-center valor-possuido">
-                R$ {{ "{:,.2f}".format(item.valor_mensal | default(0)) }}
+            <div class="col-4 text-end">
+                <span class="badge-status status-{{ item.status | lower }}">
+                    {{ item.status }}
+                </span>
             </div>
+        </div>
 
-            <div class="col-md-2 text-center valor-falta {% if item.falta_pagar == 0 %}concluido{% endif %}">
-                R$ {{ "{:,.2f}".format(item.falta_pagar | default(0)) }}
-            </div>
+        <div id="modal-{{ loop.index0 }}" class="detalhe-overlay" onclick="fecharDetalhes('{{ loop.index0 }}')">
+            <div class="detalhe-card" onclick="event.stopPropagation()">
 
-            <div class="col-md-2 text-end">
-                <span class="badge-pendente">{{ item.status }}</span>
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h3 class="m-0 h4 text-white fw-bold">{{ item.nome }}</h3>
+                        <small class="text-info text-uppercase opacity-75 fw-bold"
+                            style="font-size: 0.65rem; letter-spacing: 1px;">
+                            <i class="bi bi-tag-fill me-1"></i>{{ item.categoria }}
+                        </small>
+                    </div>
+                    <button class="btn-fechar" onclick="fecharDetalhes('{{ loop.index0 }}')">&times;</button>
+                </div>
+
+                <div class="row mb-4 mx-0 rounded-4"
+                    style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div class="col-12 p-4 text-center">
+                        <small class="text-muted-custom d-block text-uppercase mb-1"
+                            style="font-size: 0.7rem; letter-spacing: 2px;">Valor Total</small>
+                        <span class="h1 fw-bold m-0"
+                            style="color: var(--accent-cyan); text-shadow: 0 0 15px rgba(0, 242, 255, 0.3);">
+                            R$ {{ "{:,.2f}".format(item.valor_total | default(0)).replace(',', 'v').replace('.',
+                            ',').replace('v', '.') }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if item.tipo != 'Parcelado' %}
+                <div class="p-3 mb-4 rounded-3 d-flex align-items-center justify-content-center"
+                    style="background: rgba(78, 205, 196, 0.07); border: 1px solid rgba(78, 205, 196, 0.15);">
+                    <div class="text-center">
+                        <i class="bi bi-patch-check-fill h4 mb-2 d-block" style="color: #4ecdc4;"></i>
+                        <p class="m-0 fw-bold" style="color: #4ecdc4; font-size: 0.85rem; letter-spacing: 0.5px;">
+                            PAGAMENTO À VISTA
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mt-2">
+                    <button class="btn-modal-fechar w-100 fw-bold py-2" onclick="fecharDetalhes('{{ loop.index0 }}')">
+                        FECHAR
+                    </button>
+                </div>
             </div>
         </div>
         {% endfor %}
     </div>
 
+
+    <script>
+        function abrirDetalhes(id) {
+            document.getElementById('modal-' + id).style.display = 'flex';
+        }
+
+        function fecharDetalhes(id) {
+            document.getElementById('modal-' + id).style.display = 'none';
+        }
+
+        // Fechar se clicar fora do card
+        window.onclick = function (event) {
+            if (event.target.className === 'detalhe-overlay') {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="static/js/main.js"></script>
 </body>

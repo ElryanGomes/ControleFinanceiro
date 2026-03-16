@@ -227,6 +227,51 @@ body {
     border-color: var(--accent-cyan);
 }
 
+/* Estilo geral das etiquetas de status */
+.badge-status {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-pago {
+    background: rgba(78, 205, 196, 0.1);
+    color: #4ecdc4;
+    border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.status-reservado {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-pendente {
+    background: rgba(255, 82, 82, 0.1);
+    color: #ff5252;
+    border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+/* Ajuste no item para parecer uma linha de extrato */
+.item-financeiro {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.item-financeiro:hover {
+    background: rgba(0, 242, 255, 0.05);
+    border-color: var(--accent-cyan);
+    transform: scale(1.01);
+}
+
 .info-principal small {
     color: #94a3b8 !important;
     font-weight: 500;
@@ -237,3 +282,147 @@ body {
 .valor-possuido { color: var(--gain-green); font-family: 'JetBrains Mono', monospace; }
 .valor-falta { color: var(--loss-pink); font-family: 'JetBrains Mono', monospace; }
 .valor-falta.concluido { color: var(--gain-green); opacity: 0.6; }
+
+/* Fundo escurecido que cobre a tela toda */
+.detalhe-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Blackout */
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+/* O card centralizado */
+.detalhe-card {
+    background: #0a192f;
+    border: 1px solid var(--accent-cyan);
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+}
+
+.meses-parcelas {
+    max-height: 250px;
+    overflow-y: auto; /* Scroll se tiver muitas parcelas */
+    padding-right: 10px;
+}
+
+.parcela-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.btn-fechar {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    line-height: 1;
+}
+
+
+/* 1. Esconder o modal por padrão (CRÍTICO) */
+.detalhe-overlay {
+    display: none; /* Isso garante que ele não apareça ao atualizar */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 8, 20, 0.95);
+    z-index: 9999;
+}
+
+/* 2. Cores Legíveis para Categoria e Tipo */
+.text-muted-custom {
+    color: rgba(255, 255, 255, 0.6) !important; /* Cinza claro legível no fundo escuro */
+    font-size: 0.75rem;
+}
+
+/* 3. Cores de Status Adequadas */
+.badge-status {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.status-pago { background: #155724; color: #d4edda; border: 1px solid #c3e6cb; }
+.status-reservado { background: #856404; color: #fff3cd; border: 1px solid #ffeeba; }
+.status-pendente { background: #721c24; color: #f8d7da; border: 1px solid #f5c6cb; }
+
+
+/* Estilo do botão fechar (o X no topo) */
+.btn-fechar {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.8rem;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.btn-fechar:hover {
+    color: var(--accent-cyan);
+}
+
+/* Forçar cor do texto no painel de valor caso haja herança do Bootstrap */
+.detalhe-card h2, .detalhe-card span {
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Botão de Fechar Principal do Modal */
+.btn-modal-fechar {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+/* Efeito Hover (ao passar o mouse) */
+.btn-modal-fechar:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.1);
+}
+
+/* Efeito Focus (ao clicar ou navegar pelo teclado) */
+.btn-modal-fechar:focus {
+    box-shadow: 0 0 0 3px rgba(0, 242, 255, 0.2);
+    border-color: var(--accent-cyan);
+}
+
+/* Efeito Active (ao manter clicado) */
+.btn-modal-fechar:active {
+    transform: translateY(0);
+}
+
+/* Estilizando o Scrollbar da lista de parcelas */
+.lista-parcelas-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.lista-parcelas-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+
+.lista-parcelas-scroll::-webkit-scrollbar-thumb {
+    background: rgba(0, 242, 255, 0.3);
+    border-radius: 10px;
+}
+
+.parcela-row:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
