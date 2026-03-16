@@ -137,9 +137,6 @@
     </section>
 
 
-
-
-    
     <div id="itens-lista" class="mt-4 px-5">
         <div class="row px-4 mb-2 opacity-50 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
             <div class="col-4">Descrição</div>
@@ -155,7 +152,8 @@
                         class="dot {% if item.tipo == 'Parcelado' %}dot-parcelado{% else %}dot-unico{% endif %}"></span>
                     <div class="ms-3">
                         <span class="d-block fw-bold text-white">{{ item.nome }}</span>
-                        <small class="text-muted-custom d-block">{{ item.categoria }} • {{ item.tipo }}</small>
+                        <small class="text-muted-custom d-block" style="font-size: 0.75rem;">{{ item.categoria }} • {{
+                            item.tipo }}</small>
                     </div>
                 </div>
             </div>
@@ -174,50 +172,113 @@
             </div>
         </div>
 
+        <!-- card de detalhes -->
         <div id="modal-{{ loop.index0 }}" class="detalhe-overlay" onclick="fecharDetalhes('{{ loop.index0 }}')">
-            <div class="detalhe-card" onclick="event.stopPropagation()">
+            <div class="detalhe-card" onclick="event.stopPropagation()" style="max-width: 420px; padding: 1.5rem;">
 
-                <div class="d-flex justify-content-between align-items-start mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h3 class="m-0 h4 text-white fw-bold">{{ item.nome }}</h3>
-                        <small class="text-info text-uppercase opacity-75 fw-bold"
-                            style="font-size: 0.65rem; letter-spacing: 1px;">
+                        <h3 class="m-0 h5 text-white fw-bold">{{ item.nome }}</h3>
+                        <small class="text-info text-uppercase fw-bold" style="font-size: 0.6rem; opacity: 0.8;">
                             <i class="bi bi-tag-fill me-1"></i>{{ item.categoria }}
                         </small>
                     </div>
                     <button class="btn-fechar" onclick="fecharDetalhes('{{ loop.index0 }}')">&times;</button>
                 </div>
 
-                <div class="row mb-4 mx-0 rounded-4"
-                    style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div class="col-12 p-4 text-center">
-                        <small class="text-muted-custom d-block text-uppercase mb-1"
-                            style="font-size: 0.7rem; letter-spacing: 2px;">Valor Total</small>
-                        <span class="h1 fw-bold m-0"
-                            style="color: var(--accent-cyan); text-shadow: 0 0 15px rgba(0, 242, 255, 0.3);">
-                            R$ {{ "{:,.2f}".format(item.valor_total | default(0)).replace(',', 'v').replace('.',
-                            ',').replace('v', '.') }}
-                        </span>
+                <div class="d-flex justify-content-between align-items-center p-2 mb-3 rounded-3"
+                    style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <small class="text-muted-custom text-uppercase ms-2"
+                        style="font-size: 0.6rem; letter-spacing: 1px;">Valor Total</small>
+                    <span class="fw-bold me-2" style="color: var(--accent-cyan); font-size: 1.1rem;">
+                        R$ {{ "{:,.2f}".format(item.valor_total | default(0)).replace(',', 'v').replace('.',
+                        ',').replace('v', '.') }}
+                    </span>
+                </div>
+
+                {% if item.tipo == 'Parcelado' %}
+                {% set pagas = item.parcelas_pagas | default(0) | int %}
+                {% set total = item.total_parcelas | default(1) | int %}
+                {% set porcentagem = (pagas / (total if total > 0 else 1)) * 100 %}
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="p-2 rounded-3" style="background: rgba(0,0,0,0.2);">
+                            <small class="text-muted-custom d-block" style="font-size: 0.55rem;">MENSAL</small>
+                            <span class="text-white fw-bold" style="font-size: 0.85rem;">
+                                R$ {{ "{:,.2f}".format(item.valor_mensal | default(0)).replace(',', 'v').replace('.',
+                                ',').replace('v', '.') }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded-3" style="background: rgba(0,0,0,0.2);">
+                            <small class="text-muted-custom d-block" style="font-size: 0.55rem;">RESTRANTE</small>
+                            <span class="text-danger fw-bold" style="font-size: 0.85rem;">
+                                R$ {{ "{:,.2f}".format(item.falta_pagar | default(0)).replace(',', 'v').replace('.',
+                                ',').replace('v', '.') }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="progress" style="height: 4px; background: rgba(255,255,255,0.1);">
+                            <div class="progress-bar" style="width: {{ porcentagem }}%; background: #4ecdc4;"></div>
+                        </div>
                     </div>
                 </div>
 
-                {% if item.tipo != 'Parcelado' %}
-                <div class="p-3 mb-4 rounded-3 d-flex align-items-center justify-content-center"
-                    style="background: rgba(78, 205, 196, 0.07); border: 1px solid rgba(78, 205, 196, 0.15);">
-                    <div class="text-center">
-                        <i class="bi bi-patch-check-fill h4 mb-2 d-block" style="color: #4ecdc4;"></i>
-                        <p class="m-0 fw-bold" style="color: #4ecdc4; font-size: 0.85rem; letter-spacing: 0.5px;">
-                            PAGAMENTO À VISTA
-                        </p>
+                <div class="cronograma-container p-2 rounded-3"
+                    style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                        <small class="text-white-50 text-uppercase" style="font-size: 0.6rem;">Cronograma Mensal</small>
+                        <small class="text-white opacity-50" style="font-size: 0.6rem;">{{ pagas }}/{{ total }}</small>
+                    </div>
+
+                    <div class="lista-parcelas-scroll"
+                        style="max-height: 220px; overflow-y: auto; padding-right: 5px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        {% for n in range(total) %}
+                        <div class="parcela-row p-2 rounded"
+                            style="background: rgba(255,255,255,0.03); border-left: 3px solid {% if n < pagas %}#4ecdc4{% else %}#ff5252{% endif %};">
+                            <span style="font-size: 0.55rem; color: #aaa; display: block; margin-bottom: 2px;">MÊS {{ n
+                                + 1 }}</span>
+                            <select class="status-parcela-select form-select form-select-sm border-0 p-0 shadow-none"
+                                data-gasto-index="{{ loop.index0 }}" data-parcela-index="{{ n }}"
+                                onchange="atualizarCorSelect(this)"
+                                style="font-size: 0.75rem; height: auto; background: transparent; font-weight: bold; color: {% if n < pagas %}#4ecdc4{% else %}#ff8686{% endif %}; cursor: pointer;">
+                                <option value="Pago" class="bg-dark text-success" {% if n < pagas %}selected{% endif %}>
+                                    PAGO</option>
+                                <option value="Reservado" class="bg-dark text-warning">RESERVA</option>
+                                <option value="Pendente" class="bg-dark text-danger" {% if n>= pagas %}selected{% endif
+                                    %}>PENDENTE</option>
+                            </select>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-                {% endif %}
 
-                <div class="mt-2">
-                    <button class="btn-modal-fechar w-100 fw-bold py-2" onclick="fecharDetalhes('{{ loop.index0 }}')">
-                        FECHAR
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-outline-light flex-grow-1 py-2" onclick="fecharDetalhes('{{ loop.index0 }}')"
+                        style="font-size: 0.75rem; border-radius: 8px; opacity: 0.7;">CANCELAR</button>
+                    <button class="btn btn-info flex-grow-1 py-2 fw-bold"
+                        onclick="salvarAlteracoes('{{ loop.index0 }}')"
+                        style="background: #4ecdc4; border: none; border-radius: 8px; font-size: 0.75rem; color: #121212;">
+                        SALVAR MUDANÇAS
                     </button>
                 </div>
+
+                {% else %}
+                <div class="p-4 rounded-3 text-center mb-2"
+                    style="background: rgba(78, 205, 196, 0.1); border: 1px dashed rgba(78, 205, 196, 0.3);">
+                    <i class="bi bi-check2-circle text-info h2"></i>
+                    <p class="text-info fw-bold m-0">PAGAMENTO À VISTA</p>
+                    <small class="text-white-50">Este item não possui parcelamento.</small>
+                </div>
+
+                <div class="mt-3">
+                    <button class="btn btn-outline-light w-100 py-2" onclick="fecharDetalhes('{{ loop.index0 }}')"
+                        style="font-size: 0.75rem; border-radius: 8px; opacity: 0.8;">FECHAR VISUALIZAÇÃO</button>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -238,6 +299,52 @@
             if (event.target.className === 'detalhe-overlay') {
                 event.target.style.display = 'none';
             }
+        }
+
+        // 1. Muda a cor do texto assim que o usuário seleciona uma opção (feedback visual)
+        function atualizarCorSelect(selectElement) {
+            const status = selectElement.value;
+            if (status === 'Pago') {
+                selectElement.style.color = '#4ecdc4';
+            } else if (status === 'Reservado') {
+                selectElement.style.color = '#ffc107';
+            } else {
+                selectElement.style.color = '#ff8686';
+            }
+        }
+
+        // 2. Coleta todos os status e envia para o servidor
+        function salvarAlteracoes(index) {
+            const modal = document.querySelector(`#modal-${index}`);
+            const selects = modal.querySelectorAll('.status-parcela-select');
+
+            // Aqui estamos contando quantas parcelas estão como "Pago"
+            // Você pode adaptar para enviar o status individual de cada uma se preferir
+            let pagas = 0;
+            selects.forEach(select => {
+                if (select.value === 'Pago') {
+                    pagas++;
+                }
+            });
+
+            // Enviar para o Flask via POST
+            const formData = new FormData();
+            formData.append('index', index);
+            formData.append('parcelas_pagas', pagas);
+
+            fetch('/atualizar_gasto', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload(); // Atualiza a tela para mostrar os novos cálculos
+                    } else {
+                        alert('Erro ao salvar alterações');
+                    }
+                })
+                .catch(error => console.error('Erro:', error));
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

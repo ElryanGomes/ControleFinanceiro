@@ -426,3 +426,13 @@ body {
 .parcela-row:hover {
     background: rgba(255, 255, 255, 0.05) !important;
 }
+
+.btn-info {
+    transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+    background: #00d4e3 !important; /* Um ciano levemente mais escuro */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3);
+}

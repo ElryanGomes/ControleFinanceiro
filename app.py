@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, jsonify
 
 app = Flask(__name__)
 
@@ -22,9 +22,33 @@ def index():
         saldo=v_saldo
     )
 
+@app.route('/atualizar_gasto', methods=['POST'])
+def atualizar_gasto():
+    idx = int(request.form.get('index'))
+    novas_pagas = int(request.form.get('parcelas_pagas'))
+    
+    if 0 <= idx < len(gastos):
+        item = gastos[idx]
+        item['parcelas_pagas'] = novas_pagas
+        
+        # Recalcular valor restante
+        item['falta_pagar'] = item['valor_total'] - (item['valor_mensal'] * novas_pagas)
+        
+        # Atualizar status geral se tudo foi pago
+        if novas_pagas >= item['total_parcelas']:
+            item['status'] = 'Pago'
+        else:
+            item['status'] = 'Pendente'
+            
+        return jsonify(success=True)
+    
+    return jsonify(success=False), 400
+
+
 @app.route('/adicionar')
 def adicionar():
     return render_template('adicionar.html')
+
 
 @app.route('/adicionar_ganho', methods=['POST'])
 def adicionar_ganho():
@@ -39,6 +63,7 @@ def adicionar_ganho():
         ganhos.append({'nome': nome, 'valor': valor, 'data': data})
     
     return redirect(url_for('index'))
+
 
 @app.route('/adicionar_gasto', methods=['POST'])
 def adicionar_gasto():
