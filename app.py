@@ -1,119 +1,112 @@
-from flask import Flask, render_template, url_for, request, redirect, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
 
-# Simulação de "Banco de Dados"
-ganhos = []
-gastos = []
+# Configuração do Banco de Dados SQLite
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'financas.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Modelo para Ganhos (Entradas)
+class Ganho(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100))
+    valor = db.Column(db.Float)
+    data = db.Column(db.String(20))
+
+# Modelo para Gastos (Saídas)
+class Gasto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    categoria = db.Column(db.String(50), nullable=False)
+    valor_total = db.Column(db.Float, nullable=False)
+    valor_mensal = db.Column(db.Float, nullable=False)
+    total_parcelas = db.Column(db.Integer, default=1)
+    parcelas_pagas = db.Column(db.Integer, default=0)
+    falta_pagar = db.Column(db.Float)
+    tipo = db.Column(db.String(20)) # 'Parcelado' ou 'Unico'
+    status = db.Column(db.String(20), default='Pendente')
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def index():
-    # Garante que os valores existam, mesmo que as listas estejam vazias
-    t_entradas = sum(float(item.get('valor', 0)) for item in ganhos)
-    t_saidas = sum(float(item.get('valor_mensal', 0)) for item in gastos)
+    lista_ganhos = Ganho.query.all()
+    lista_gastos = Gasto.query.all()
+    
+    t_entradas = sum(item.valor for item in lista_ganhos)
+    t_saidas = sum(item.valor_mensal for item in lista_gastos)
     v_saldo = t_entradas - t_saidas
     
     return render_template(
         'index.html',
-        ganhos=ganhos,
-        gastos=gastos,
-        total_entradas=t_entradas, # O nome aqui (total_entradas) deve ser o mesmo do {{ }} no HTML
+        ganhos=lista_ganhos,
+        gastos=lista_gastos,
+        total_entradas=t_entradas,
         total_saidas=t_saidas,
         saldo=v_saldo
     )
-
-@app.route('/atualizar_gasto', methods=['POST'])
-def atualizar_gasto():
-    idx = int(request.form.get('index'))
-    novas_pagas = int(request.form.get('parcelas_pagas'))
-    
-    if 0 <= idx < len(gastos):
-        item = gastos[idx]
-        item['parcelas_pagas'] = novas_pagas
-        
-        # Recalcular valor restante
-        item['falta_pagar'] = item['valor_total'] - (item['valor_mensal'] * novas_pagas)
-        
-        # Atualizar status geral se tudo foi pago
-        if novas_pagas >= item['total_parcelas']:
-            item['status'] = 'Pago'
-        else:
-            item['status'] = 'Pendente'
-            
-        return jsonify(success=True)
-    
-    return jsonify(success=False), 400
-
 
 @app.route('/adicionar')
 def adicionar():
     return render_template('adicionar.html')
 
-
 @app.route('/adicionar_ganho', methods=['POST'])
 def adicionar_ganho():
     nome = request.form.get('nome_ganho')
-    try:
-        valor = float(request.form.get('valor_ganho') or 0)
-    except ValueError:
-        valor = 0
+    valor = float(request.form.get('valor_ganho') or 0)
     data = request.form.get('data_ganho')
 
     if nome and valor > 0:
-        ganhos.append({'nome': nome, 'valor': valor, 'data': data})
-    
+        novo_ganho = Ganho(nome=nome, valor=valor, data=data)
+        db.session.add(novo_ganho)
+        db.session.commit()
     return redirect(url_for('index'))
-
 
 @app.route('/adicionar_gasto', methods=['POST'])
 def adicionar_gasto():
     nome = request.form.get('nome_item')
     categoria = request.form.get('categoria')
-    tipo_pagamento = request.form.get('tipo_pagamento')
-    status = request.form.get('status_pagamento') # Novo: Pega se é Pago, Reservado ou Pendente
-    data = request.form.get('data_gasto')
+    tipo = request.form.get('tipo_pagamento')
+    v_total = float(request.form.get('valor_total') or 0)
     
-    try:
-        valor_total = float(request.form.get('valor_total') or 0)
-    except ValueError:
-        valor_total = 0
+    v_mensal = v_total
+    p_pagas = 0
+    total_p = 1
 
-    dados_gasto = {
-        'nome': nome,
-        'valor_total': valor_total,
-        'tipo': tipo_pagamento,
-        'status': status,
-        'data': data,
-        'categoria': categoria
-    }
+    if tipo == 'Parcelado':
+        v_mensal = float(request.form.get('valor_parcela') or v_total)
+        p_pagas = int(request.form.get('parcelas_pagas') or 0)
+        total_p = int(v_total / v_mensal) if v_mensal > 0 else 1
 
-    if tipo_pagamento == 'Parcelado':
-        try:
-            v_parcela = float(request.form.get('valor_parcela') or 0)
-            p_pagas = int(request.form.get('parcelas_pagas') or 0)
-            
-            if v_parcela <= 0: v_parcela = valor_total
-            total_p = int(valor_total / v_parcela) if v_parcela > 0 else 1
-            
-            dados_gasto.update({
-                'valor_mensal': v_parcela,
-                'parcelas_pagas': p_pagas,
-                'total_parcelas': total_p,
-                'falta_pagar': valor_total - (v_parcela * p_pagas)
-            })
-        except (ValueError, ZeroDivisionError):
-            dados_gasto.update({'valor_mensal': valor_total, 'falta_pagar': 0})
-    else:
-        # Gasto único
-        dados_gasto.update({
-            'valor_mensal': valor_total,
-            'falta_pagar': 0
-        })
-
-    if nome and valor_total > 0:
-        gastos.append(dados_gasto)
-    
+    novo_gasto = Gasto(
+        nome=nome, categoria=categoria, valor_total=v_total,
+        valor_mensal=v_mensal, total_parcelas=total_p,
+        parcelas_pagas=p_pagas, tipo=tipo,
+        falta_pagar=v_total - (v_mensal * p_pagas),
+        status='Pendente'
+    )
+    db.session.add(novo_gasto)
+    db.session.commit()
     return redirect(url_for('index'))
+
+@app.route('/atualizar_gasto', methods=['POST'])
+def atualizar_gasto():
+    gasto_id = request.form.get('id') # Mudado de 'index' para 'id'
+    novas_pagas = int(request.form.get('parcelas_pagas'))
+    gasto = Gasto.query.get(gasto_id)
+    
+    if gasto:
+        gasto.parcelas_pagas = novas_pagas
+        gasto.falta_pagar = gasto.valor_total - (gasto.valor_mensal * novas_pagas)
+        gasto.status = 'Pago' if novas_pagas >= gasto.total_parcelas else 'Pendente'
+        db.session.commit()
+        return jsonify(success=True)
+    return jsonify(success=False), 404
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
