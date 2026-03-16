@@ -100,11 +100,12 @@
                                     placeholder="R$ 0,00" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Forma de Pagamento</label>
+                                <label class="form-label">Tipo de Gasto</label>
                                 <select name="tipo_pagamento" id="tipo_pagamento" class="form-select"
-                                    onchange="toggleParcelas()">
-                                    <option value="Unico">Pagamento Único (À vista)</option>
-                                    <option value="Parcelado">Parcelado</option>
+                                    onchange="toggleParcelas()" required>
+                                    <option value="Unico">À Vista / Único</option>
+                                    <option value="Parcelado">Parcelado (Ex: Celular)</option>
+                                    <option value="Fixo">Fixo / Reserva (Ex: Gasolina, Cabelo)</option>
                                 </select>
                             </div>
                         </div>
@@ -145,12 +146,9 @@
     <script>
         function toggleParcelas() {
             const tipo = document.getElementById('tipo_pagamento').value;
-            const secao = document.getElementById('secao_parcelas');
-            if (tipo === 'Parcelado') {
-                secao.style.display = 'block';
-            } else {
-                secao.style.display = 'none';
-            }
+            const secaoParcelas = document.getElementById('secao_parcelas');
+            // Só mostra o seletor de parcelas se for... Parcelado!
+            secaoParcelas.style.display = (tipo === 'Parcelado') ? 'block' : 'none';
         }
     </script>
 
