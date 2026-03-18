@@ -147,9 +147,9 @@
                     </div>
                 </div>
 
-                <!-- CARD DE ITEM RESERVASO OU FIXO -->
+                <!-- CARD DE ITEM RESERVADO OU FIXO -->
                 <div id="modal-{{ item.id }}" class="detalhe-overlay" onclick="fecharDetalhes('{{ item.id }}')"
-                    style="display:none;">
+                    style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
                     <div class="detalhe-card" onclick="event.stopPropagation()"
                         style="background: #1a1a1a; border-radius: 20px; padding: 1.5rem; max-width: 400px; width: 90%;">
                         <div class="d-flex justify-content-between mb-3">
@@ -164,7 +164,7 @@
                             <h4 class="text-info mb-3">R$ {{ "{:,.2f}".format(item.valor_total -
                                 (item.valor_gasto_real|default(0))).replace('.', ',') }}</h4>
                             <div class="input-group">
-                                <input type="number" id="input-{{ item.id }}"
+                                <input type="number" id="input-consumo-{{ item.id }}"
                                     class="form-control bg-dark text-white border-0" placeholder="Valor do gasto">
                                 <button class="btn btn-info" onclick="registrarConsumo('{{ item.id }}')">ABATER</button>
                             </div>
@@ -206,15 +206,76 @@
 
                 <!-- CARD DE ITEM PARCELADO -->
                 <div id="modal-{{ item.id }}" class="detalhe-overlay" onclick="fecharDetalhes('{{ item.id }}')"
-                    style="display:none;">
-                    <div class="detalhe-card" onclick="event.stopPropagation()"
-                        style="background: #1a1a1a; border-radius: 20px; padding: 1.5rem; max-width: 400px; width: 90%;">
-                        <div class="d-flex justify-content-between mb-4">
-                            <h5 class="text-white m-0">{{ item.nome }}</h5>
-                            <button class="btn-close btn-close-white"
-                                onclick="fecharDetalhes('{{ item.id }}')"></button>
+                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 12, 0.96); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+
+                    <div class="detalhe-card text-center text-white" onclick="event.stopPropagation()"
+                        style="background: linear-gradient(165deg, #0a192f 0%, #050a14 100%); border: 1px solid rgba(188, 19, 254, 0.2); border-radius: 32px; padding: 2rem; max-width: 420px; width: 95%; position: relative; box-shadow: 0 0 30px rgba(188, 19, 254, 0.1);">
+
+                        <div
+                            style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, #bc13fe, transparent); border-radius: 0 0 10px 10px;">
                         </div>
-                        <p class="text-white-50 small text-center">Configurações de parcelas em breve...</p>
+
+                        <h1 class="fw-bold mb-1"
+                            style="font-size: 2.2rem; letter-spacing: -1.5px; line-height: 1; color: #fff;">{{ item.nome
+                            }}</h1>
+                        <div class="mb-3 opacity-50"
+                            style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;">{{ item.categoria
+                            }} • STATUS DE PAGAMENTO</div>
+
+                        <div class="d-flex justify-content-around align-items-center mb-4 p-3 rounded-4"
+                            style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                            <div>
+                                <small class="d-block opacity-40 mb-1"
+                                    style="font-size: 0.5rem; letter-spacing: 1px;">VALOR TOTAL</small>
+                                <span class="fw-bold" style="font-size: 1.1rem; color: #e6f1ff;">R$ {{
+                                    "{:,.2f}".format(item.valor_total).replace('.', ',') }}</span>
+                            </div>
+                            <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
+                            <div>
+                                <small class="d-block opacity-40 mb-1"
+                                    style="font-size: 0.5rem; letter-spacing: 1px;">RESTANTE</small>
+                                <span class="fw-bold" style="font-size: 1.1rem; color: #ff5252;">R$ {{
+                                    "{:,.2f}".format(item.valor_total - (item.valor_pago_acumulado |
+                                    default(0))).replace('.', ',') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 text-start">
+                            <small class="d-block opacity-50 mb-2 ms-1"
+                                style="font-size: 0.6rem; letter-spacing: 1px;">CLIQUE NO MÊS PARA ALTERAR</small>
+                            <div class="d-flex flex-wrap gap-2 justify-content-start scroll-custom"
+                                style="max-height: 180px; overflow-y: auto; padding-right: 5px;">
+
+                                {% for i in range(1, item.total_parcelas + 1) %}
+                                <button type="button" class="btn-parcela-item" onclick="alternarStatusVisual(this)"
+                                    data-status="{% if i <= item.parcelas_pagas %}Pago{% elif i <= (item.parcelas_pagas + item.parcelas_reservadas|default(0)) %}Reservado{% else %}Pendente{% endif %}"
+                                    style="flex: 1 0 21%; min-width: 75px; height: 48px; border-radius: 12px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.4);">
+                                    {{ i }}ª Parc.
+                                    <small class="d-block status-label"
+                                        style="font-size: 0.5rem; text-transform: uppercase; margin-top: 2px; opacity: 0.8;">
+                                        {% if i <= item.parcelas_pagas %}Pago{% elif i <=(item.parcelas_pagas +
+                                            item.parcelas_reservadas|default(0)) %}Reservado{% else %}Pendente{% endif
+                                            %} </small>
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button class="btn w-100 py-2 fw-bold" onclick="fecharDetalhes('{{ item.id }}')"
+                                    style="background: transparent; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; font-size: 0.7rem; letter-spacing: 1px;">
+                                    VOLTAR
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-save-parcelas w-100 py-2 fw-bold"
+                                    onclick="salvarAlteracoesParcelas('{{ item.id }}')"
+                                    style="background: #fff; color: #050a14; border: none; border-radius: 14px; font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 8px 15px rgba(255,255,255,0.1);">
+                                    SALVAR
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -300,61 +361,99 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function abrirDetalhes(id) {
-            document.getElementById('modal-' + id).style.display = 'flex';
-        }
-        function fecharDetalhes(id) {
-            document.getElementById('modal-' + id).style.display = 'none';
-        }
+    // 1. Controle de Exibição
+    function abrirDetalhes(id) {
+        const modal = document.getElementById('modal-' + id);
+        if (modal) modal.style.display = 'flex';
+    }
 
-        // Registrar consumo no Fixo/Reserva
-        function registrarConsumo(id) {
-            const input = document.getElementById(`input-consumo-${id}`);
-            const valorAbatido = parseFloat(input.value);
+    function fecharDetalhes(id) {
+        const modal = document.getElementById('modal-' + id);
+        if (modal) modal.style.display = 'none';
+    }
 
-            if (isNaN(valorAbatido) || valorAbatido <= 0) {
-                alert("Insira um valor válido.");
-                return;
+    // 2. Lógica Visual das Parcelas (Troca de cor no clique)
+    function alternarStatusVisual(el) {
+        const estados = ["Pendente", "Reservado", "Pago"];
+        let atual = el.getAttribute("data-status") || "Pendente";
+        let proximo = estados[(estados.indexOf(atual) + 1) % estados.length];
+        
+        el.setAttribute("data-status", proximo);
+        const label = el.querySelector('.status-label');
+        if (label) label.innerText = proximo;
+    }
+
+    // 3. SALVAR PARCELADOS (O que estava dando erro)
+    function salvarAlteracoesParcelas(id) {
+        const modal = document.getElementById(`modal-${id}`);
+        const botoes = modal.querySelectorAll('.btn-parcela-item');
+        
+        let pagas = 0;
+        let reservadas = 0;
+
+        // Conta o status de cada botão clicado
+        botoes.forEach(btn => {
+            const status = btn.getAttribute('data-status');
+            if (status === 'Pago') pagas++;
+            if (status === 'Reservado') reservadas++;
+        });
+
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('parcelas_pagas', pagas);
+        formData.append('parcelas_reservadas', reservadas);
+
+        // ATENÇÃO: Verifique se sua rota no app.py é exatamente '/atualizar_gasto'
+        fetch('/atualizar_gasto', { 
+            method: 'POST', 
+            body: formData 
+        })
+        .then(r => r.json())
+        .then(data => { 
+            if (data.success) {
+                window.location.reload(); // Recarrega para ver o saldo atualizado
+            } else {
+                alert("Erro ao salvar no banco de dados: " + (data.error || "Erro desconhecido"));
             }
+        })
+        .catch(err => alert("Erro de conexão com o servidor."));
+    }
 
-            const formData = new FormData();
-            formData.append('id', id);
-            formData.append('valor_abatido', valorAbatido);
+    // 4. ABATER GASTOS (Fixo / Reserva)
+    function registrarConsumo(id) {
+        const input = document.getElementById(`input-consumo-${id}`);
+        const valorAbatido = parseFloat(input.value);
 
-            fetch('/abater_gasto', { method: 'POST', body: formData })
-                .then(r => r.json())
-                .then(data => { if (data.success) window.location.reload(); });
+        if (isNaN(valorAbatido) || valorAbatido <= 0) {
+            alert("Digite um valor válido para abater.");
+            return;
         }
 
-        // Salvar status das parcelas
-        function salvarAlteracoesParcelas(id) {
-            const modal = document.getElementById(`modal-${id}`);
-            const selects = modal.querySelectorAll('.status-parcela-select');
-            let pagas = 0;
-            let reservadas = 0;
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('valor_abatido', valorAbatido);
 
-            selects.forEach(s => {
-                if (s.value === 'Pago') pagas++;
-                if (s.value === 'Reservado') reservadas++;
-            });
-
-            const formData = new FormData();
-            formData.append('id', id);
-            formData.append('parcelas_pagas', pagas);
-            formData.append('parcelas_reservadas', reservadas);
-
-            fetch('/atualizar_gasto', { method: 'POST', body: formData })
-                .then(r => r.json())
-                .then(data => { if (data.success) window.location.reload(); });
-        }
-
-        // Fechar ao clicar fora
-        window.onclick = function (event) {
-            if (event.target.classList.contains('detalhe-overlay')) {
-                event.target.style.display = 'none';
+        fetch('/abater_gasto', { 
+            method: 'POST', 
+            body: formData 
+        })
+        .then(r => r.json())
+        .then(data => { 
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert("Erro ao abater: " + data.error);
             }
+        });
+    }
+
+    // Fechar ao clicar fora
+    window.onclick = function (event) {
+        if (event.target.classList.contains('detalhe-overlay')) {
+            event.target.style.display = 'none';
         }
-    </script>
+    }
+</script>
 </body>
 
 </html>

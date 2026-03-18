@@ -520,3 +520,26 @@ body {
 .detalhe-card {
     animation: modalSlideUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
+
+/* ESTILOS DINÂMICOS DAS PARCELAS */
+.btn-parcela-item[data-status="Pago"] {
+    background: rgba(100, 255, 218, 0.1) !important;
+    border-color: #64ffda !important;
+    color: #64ffda !important;
+}
+.btn-parcela-item[data-status="Reservado"] {
+    background: rgba(255, 193, 7, 0.1) !important;
+    border-color: #ffc107 !important;
+    color: #ffc107 !important;
+}
+.btn-parcela-item[data-status="Pendente"] {
+    background: rgba(255, 82, 82, 0.05) !important;
+    border-color: rgba(255, 82, 82, 0.2) !important;
+    color: #ff8686 !important;
+}
+
+/* HOVERS E SCROLL */
+.btn-save-parcelas:hover { transform: translateY(-2px); background: #f8f9fa; }
+
+.scroll-custom::-webkit-scrollbar { width: 3px; }
+.scroll-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
