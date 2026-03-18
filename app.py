@@ -195,6 +195,22 @@ def atualizar_gasto():
     return jsonify(success=False), 404
 
 
+@app.route('/editar')
+def editar():
+    # Pega todos os gastos do banco para listar na tela de gerenciar
+    gastos = Gasto.query.all() 
+    return render_template('editar.html', gastos=gastos)
+
+@app.route('/excluir_gasto/<int:id>', methods=['POST'])
+def excluir_gasto(id):
+    gasto = Gasto.query.get_or_404(id)
+    try:
+        db.session.delete(gasto)
+        db.session.commit()
+        return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 
 if __name__ == "__main__":
     app.run(debug=True)

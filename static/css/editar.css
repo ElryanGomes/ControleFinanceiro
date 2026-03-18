@@ -1,0 +1,140 @@
+/* RESET E VARIÁVEIS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-dark: #050a14;
+    --card-bg: #0a192f;
+    --text-main: #e6f1ff;
+    --accent-cyan: #00f2ff;
+    --accent-purple: #bc13fe;
+    --gain-green: #64ffda;
+    --loss-pink: #ff007f;
+    --border-color: rgba(0, 242, 255, 0.2);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+}
+
+/* HEADER E NAVEGAÇÃO */
+.header-main {
+    background: rgba(5, 10, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-link-custom {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+    position: relative;
+}
+
+.nav-link-custom i { font-size: 1.1rem; }
+
+.nav-link-custom:hover, .nav-link-custom.active {
+    opacity: 1;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+}
+
+.nav-link-custom.active::after {
+    content: '';
+    position: absolute;
+    bottom: -22px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.titulo-pagina h2 {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+/* Estética dos Cards na Edição */
+.card-edit {
+    background: linear-gradient(145deg, #0d1117, #070a0f);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.card-edit:hover {
+    border-color: rgba(78, 205, 196, 0.3);
+    transform: scale(1.01);
+}
+
+/* Input de Busca Estilizado */
+.search-box {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 15px;
+    color: white !important;
+    padding: 12px 20px;
+}
+
+.search-box:focus {
+    box-shadow: 0 0 15px rgba(78, 205, 196, 0.2);
+    border-color: #4ecdc4 !important;
+}
+
+/* Botões de Ação */
+.btn-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-edit {
+    background: rgba(78, 205, 196, 0.1);
+    color: #4ecdc4;
+}
+
+.btn-edit:hover {
+    background: #4ecdc4;
+    color: #050a14;
+    box-shadow: 0 0 15px #4ecdc466;
+}
+
+.btn-delete {
+    background: rgba(255, 82, 82, 0.1);
+    color: #ff5252;
+}
+
+.btn-delete:hover {
+    background: #ff5252;
+    color: white;
+    box-shadow: 0 0 15px #ff525266;
+}
+
+.badge-info-custom {
+    background: rgba(165, 180, 252, 0.05);
+    color: #a5b4fc;
+    border: 1px solid rgba(165, 180, 252, 0.2);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+}
