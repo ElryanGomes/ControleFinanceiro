@@ -46,9 +46,12 @@ body {
     position: relative;
 }
 
-.nav-link-custom i { font-size: 1.1rem; }
+.nav-link-custom i {
+    font-size: 1.1rem;
+}
 
-.nav-link-custom:hover, .nav-link-custom.active {
+.nav-link-custom:hover,
+.nav-link-custom.active {
     opacity: 1;
     color: var(--accent-cyan);
     text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
@@ -137,4 +140,21 @@ body {
     border: 1px solid rgba(165, 180, 252, 0.2);
     font-size: 0.6rem;
     text-transform: uppercase;
+}
+
+@keyframes pulse-neon {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.5;
+    }
 }

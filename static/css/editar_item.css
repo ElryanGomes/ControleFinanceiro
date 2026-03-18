@@ -1,0 +1,106 @@
+/* --- BASE E LAYOUT --- */
+body {
+    background-color: #050a14;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.card-form {
+    background: linear-gradient(165deg, #0a192f 0%, #050a14 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* --- FORMULÁRIOS --- */
+.form-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    border-radius: 14px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #bc13fe !important;
+    box-shadow: 0 0 15px rgba(188, 19, 254, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    outline: none;
+}
+
+.form-select option {
+    background-color: #0a192f;
+    color: #fff;
+}
+
+/* --- CAMPOS BLOQUEADOS --- */
+.field-locked {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    background-color: rgba(255, 255, 255, 0.01) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.lock-icon {
+    color: #ff5252;
+    font-size: 0.85rem;
+}
+
+/* --- BOTÃO SALVAR (PREMIUM) --- */
+.btn-save {
+    /* Gradiente fixo e forçado para evitar o branco do Bootstrap */
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 16px;
+    font-weight: 700;
+    padding: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 15px rgba(37, 117, 252, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.btn-save:hover {
+    transform: translateY(-3px);
+    /* No hover, ele apenas brilha mais, sem mudar para branco */
+    box-shadow: 0 8px 25px rgba(106, 17, 203, 0.5);
+    filter: brightness(1.2); 
+    color: #fff !important;
+}
+
+.btn-save:active {
+    transform: translateY(0);
+    filter: brightness(0.9);
+}
+
+.btn-save:focus {
+    animation: pulse-glow 1.5s infinite;
+    outline: none;
+}
+
+/* --- ANIMAÇÕES --- */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(106, 17, 203, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(106, 17, 203, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(106, 17, 203, 0); }
+}

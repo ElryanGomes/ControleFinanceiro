@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Item - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/editar_item.css') }}">
+</head>
+
+<body>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card-form">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold m-0">Editar Gasto</h3>
+                        <a href="/editar" class="text-white-50 text-decoration-none" style="font-size: 1.5rem;"><i
+                                class="bi bi-x-lg"></i></a>
+                    </div>
+
+                    <form action="/salvar_edicao_base/{{ item.id }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nome do Item</label>
+                            <input type="text" name="nome" class="form-control" value="{{ item.nome }}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select" required>
+                                    <option value="Alimentação" {% if item.categoria=='Alimentação' %}selected{% endif
+                                        %}>Alimentação</option>
+                                    <option value="Lazer" {% if item.categoria=='Lazer' %}selected{% endif %}>Lazer
+                                    </option>
+                                    <option value="Transporte" {% if item.categoria=='Transporte' %}selected{% endif %}>
+                                        Transporte</option>
+                                    <option value="Saúde" {% if item.categoria=='Saúde' %}selected{% endif %}>Saúde
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-6 mb-3">
+                                <label class="form-label d-flex align-items-center gap-2">
+                                    <i class="bi bi-lock-fill lock-icon"></i> Tipo
+                                </label>
+                                <select class="form-select field-locked" disabled>
+                                    <option value="Fixo" {% if item.tipo=='Fixo' %}selected{% endif %}>Fixo /
+                                        Reserva</option>
+                                    <option value="Parcelado" {% if item.tipo=='Parcelado' %}selected{% endif %}>
+                                        Parcelado</option>
+                                    <option value="AVista" {% if item.tipo not in ['Fixo', 'Parcelado' ] %}selected{%
+                                        endif %}>À Vista</option>
+                                </select>
+                                <input type="hidden" name="tipo" value="{{ item.tipo }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Valor Total (R$)</label>
+                            <input type="number" step="0.01" name="valor_total" class="form-control"
+                                value="{{ item.valor_total }}" required>
+                        </div>
+
+                        <button type="submit" class="btn-save w-100">
+                            <i class="bi bi-check2-circle" style="font-size: 1.2rem;"></i>
+                            Confirmar Alterações
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

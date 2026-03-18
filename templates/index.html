@@ -76,7 +76,7 @@
                         </div>
                         <div class="valor" id="ganhos">R$ {{ "{:,.2f}".format(total_entradas |
                             default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
-                        <div class="card-footer-mini">Referente ao mês</div>
+                        <div class="card-footer-mini" style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Referente ao mês</div>
                     </div>
 
                     <div class="card card-dashboard card-gastos" style="width: 220px;">
@@ -86,7 +86,7 @@
                         </div>
                         <div class="valor" id="gastos">R$ {{ "{:,.2f}".format(total_saidas |
                             default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
-                        <div class="card-footer-mini">Previsão de débitos</div>
+                        <div class="card-footer-mini" style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Previsão de débitos</div>
                     </div>
 
                     <div class="card card-dashboard card-restante" style="width: 220px;">
@@ -96,23 +96,52 @@
                         </div>
                         <div class="valor" id="restante">R$ {{ "{:,.2f}".format(saldo |
                             default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
-                        <div class="card-footer-mini">Disponível agora</div>
+                        <div class="card-footer-mini" style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Disponível agora</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div id="itens-lista" class="mt-4 px-5">
-        <div class="row px-4 mb-2 opacity-50 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
+    <div id="itens-lista" class="mt-5 px-5">
+        <div class="row px-4 mb-4 opacity-50 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
             <div class="col-4">Descrição</div>
             <div class="col-5 text-center">Progresso / Tipo</div>
             <div class="col-3 text-end">Valor</div>
         </div>
 
         <div class="lista-transacoes">
+            {% set tem_fixo = gastos | selectattr('tipo', 'equalto', 'Fixo') | list | length > 0 %}
+            {% set tem_parcelado = gastos | selectattr('tipo', 'equalto', 'Parcelado') | list | length > 0 %}
+            {% set tem_avista = gastos | selectattr('tipo', 'ne', 'Fixo') | selectattr('tipo', 'ne', 'Parcelado') | list
+            | length > 0 %}
+
+            <!-- Se tiver 0 itens -->
+            {% if not tem_fixo and not tem_parcelado and not tem_avista %}
+            <div class="col-12 text-center py-5"
+                style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 24px; margin-top: 20px;">
+                <div class="mb-3 d-inline-block position-relative">
+                    <div
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: rgba(188, 19, 254, 0.2); filter: blur(20px); border-radius: 50%; animation: pulse-neon 2s infinite;">
+                    </div>
+                    <i class="bi bi-wallet2 text-white-50"
+                        style="font-size: 2.5rem; position: relative; z-index: 1;"></i>
+                </div>
+                <h5 class="fw-bold text-white mb-1" style="letter-spacing: -0.5px;">Tudo limpo por aqui!</h5>
+                <p class="text-white-50 mx-auto"
+                    style="font-size: 0.75rem; max-width: 250px; line-height: 1.4; opacity: 0.6;">
+                    Você ainda não registrou nenhum gasto. Comece adicionando suas despesas para ter o controle total.
+                </p>
+                <a href="/adicionar" class="btn btn-sm mt-2"
+                    style="background: rgba(188, 19, 254, 0.1); color: #bc13fe; border: 1px solid rgba(188, 19, 254, 0.3); border-radius: 12px; font-size: 0.7rem; font-weight: 700; padding: 8px 20px; text-transform: uppercase; letter-spacing: 1px;">
+                    <i class="bi bi-plus-lg me-1"></i> Novo Gasto
+                </a>
+            </div>
+            {% else %}
+
 
             <!-- SEÇÃO DE RESERVAS E CUSTOS FIXOS -->
+            {% if tem_fixo %}
             <div class="secao-financeira mb-5">
                 <h4 class="text-info mb-3 h6 fw-bold text-uppercase"
                     style="letter-spacing: 2px; border-left: 3px solid #4ecdc4; padding-left: 10px;">
@@ -237,9 +266,11 @@
                 </div>
                 {% endfor %}
             </div>
+            {% endif %}
 
 
             <!-- SEÇÃO DE COMPRAS PARCELADAS -->
+            {% if tem_parcelado %}
             <div class="secao-financeira mb-5">
                 <h4 class="text-warning mb-3 h6 fw-bold text-uppercase"
                     style="letter-spacing: 2px; border-left: 3px solid #ffc107; padding-left: 10px;">
@@ -382,9 +413,11 @@
                 </div>
                 {% endfor %}
             </div>
+            {% endif %}
 
 
             <!-- SEÇÃO DE SAÍDAS À VISTA -->
+            {% if tem_avista %}
             <div class="secao-financeira mb-5">
                 <h4 class="text-success mb-3 h6 fw-bold text-uppercase"
                     style="letter-spacing: 2px; border-left: 3px solid #198754; padding-left: 10px;">
@@ -468,6 +501,8 @@
                 </div>
                 {% endfor %}
             </div>
+            {% endif %}
+            {% endif %}
         </div>
     </div>
 

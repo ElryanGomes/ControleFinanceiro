@@ -133,6 +133,40 @@ def adicionar_gasto():
     return redirect(url_for('index'))
 
 
+# ROTA PARA EXIBIR O FORMULÁRIO DE EDIÇÃO
+@app.route('/editar_item/<int:id>')
+def editar_item_view(id):
+    item = Gasto.query.get_or_404(id)
+    return render_template('editar_item.html', item=item)
+
+# ROTA PARA PROCESSAR O SALVAMENTO (NOME DA FUNÇÃO ALTERADO)
+@app.route('/salvar_edicao_base/<int:id>', methods=['POST'])
+def salvar_edicao_base(id):
+    gasto = Gasto.query.get_or_404(id)
+    
+    # Atualiza os dados básicos
+    gasto.nome = request.form.get('nome')
+    gasto.categoria = request.form.get('categoria')
+    gasto.tipo = request.form.get('tipo')
+    
+    # Converte o valor para float
+    novo_valor_total = float(request.form.get('valor_total'))
+    
+    # Se o valor total mudou, precisamos ajustar o valor_mensal proporcionalmente
+    if gasto.tipo == 'Parcelado' and gasto.total_parcelas > 0:
+        gasto.valor_total = novo_valor_total
+        gasto.valor_mensal = novo_valor_total / gasto.total_parcelas
+    else:
+        gasto.valor_total = novo_valor_total
+        gasto.valor_mensal = novo_valor_total
+
+    try:
+        db.session.commit()
+        return redirect('/editar')  # Redireciona para a sua lista de gerenciamento
+    except Exception as e:
+        db.session.rollback()
+        return f"Erro ao salvar: {e}", 500
+
 
 @app.route('/abater_gasto', methods=['POST'])
 def abater_gasto():
@@ -193,6 +227,8 @@ def atualizar_gasto():
         db.session.commit()
         return jsonify(success=True)
     return jsonify(success=False), 404
+
+
 
 
 @app.route('/editar')
