@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -26,9 +27,33 @@ class Gasto(db.Model):
     valor_gasto_real = db.Column(db.Float, default=0.0) # Quanto já usou do envelope
     total_parcelas = db.Column(db.Integer, default=1)
     parcelas_pagas = db.Column(db.Integer, default=0)
+    parcelas_reservadas = db.Column(db.Integer, default=0) # Adicione esta linha
     falta_pagar = db.Column(db.Float)
     tipo = db.Column(db.String(20)) # 'Fixo', 'Parcelado' ou 'Unico'
     status = db.Column(db.String(20), default='Pendente')
+
+def verificar_reset_mensal(user_id, dia_pagamento=10):
+    hoje = datetime.now()
+    
+    # 1. Verifica se hoje é o dia do pagamento ou depois dele
+    if hoje.day >= dia_pagamento:
+        # 2. Busca no banco se o "mês atual" já foi processado
+        # Se não foi, iniciamos o reset:
+        
+        # A. Apagar gastos "Únicos/Variáveis" do mês passado
+        Gasto.query.filter_by(user_id=user_id, tipo='Unico').delete()
+        
+        # B. Resetar o 'valor_gasto_real' dos gastos FIXOS 
+        # (Eles continuam lá, mas o progresso volta a zero)
+        gastos_fixos = Gasto.query.filter_by(user_id=user_id, tipo='Fixo').all()
+        for gasto in gastos_fixos:
+            gasto.valor_gasto_real = 0
+            gasto.status = 'Pendente'
+            
+        # C. Itens parcelados permanecem intactos (a lógica de parcelas 
+        # que você já tem no HTML cuida do visual deles)
+        
+        db.session.commit()
 
 with app.app_context():
     db.create_all()
@@ -42,22 +67,35 @@ def index():
     
     total_recebido = sum(g.valor for g in ganhos)
     
-    # CÁLCULO ATUALIZADO:
-    # 1. Reservas (O que você "carimbou" para usar depois)
-    reserva_envelopes = sum(i.valor_total for i in gastos if i.tipo == 'Fixo')
-    # 2. Parcelas do Mês (O que vence agora)
-    compromisso_parcelas = sum(i.valor_mensal for i in gastos if i.tipo == 'Parcelado')
-    # 3. À Vista (O que já saiu da conta totalmente)
+    # 1. Gastos à Vista (Saída imediata do saldo)
     gastos_a_vista = sum(i.valor_total for i in gastos if i.tipo == 'Unico')
     
-    total_saidas = reserva_envelopes + compromisso_parcelas + gastos_a_vista
+    # 2. Envelopes/Reservas Fixas (Dinheiro carimbado: Gasolina, Cabelo...)
+    reserva_envelopes = sum(i.valor_total for i in gastos if i.tipo == 'Fixo')
+    
+    # 3. Parcelas (Compromissos e Reservas de Quitação)
+    total_parcelas_comprometidas = 0
+    for item in gastos:
+        if item.tipo == 'Parcelado':
+            # Somamos as pagas (já saíram de fato) + as reservadas (você separou)
+            # Ambas diminuem o seu saldo "Livre" para gastar no dia a dia
+            quantidade_fora_do_bolso = (item.parcelas_pagas or 0) + (item.parcelas_reservadas or 0)
+            total_parcelas_comprometidas += (item.valor_mensal * quantidade_fora_do_bolso)
+
+    # Cálculo final das saídas
+    total_saidas = gastos_a_vista + reserva_envelopes + total_parcelas_comprometidas
+    
+    # O saldo que aparece no card principal (Saldo Disponível Real)
     saldo_real_livre = total_recebido - total_saidas
     
     return render_template('index.html', 
                            gastos=gastos, 
+                           ganhos=ganhos,
+                           saldo=saldo_real_livre,
                            total_entradas=total_recebido,
-                           total_saidas=total_saidas,
-                           saldo=saldo_real_livre)
+                           total_saidas=total_saidas)
+
+
 
 @app.route('/adicionar_gasto', methods=['POST'])
 def adicionar_gasto():
@@ -94,6 +132,8 @@ def adicionar_gasto():
     db.session.commit()
     return redirect(url_for('index'))
 
+
+
 @app.route('/abater_gasto', methods=['POST'])
 def abater_gasto():
     gasto_id = request.form.get('id')
@@ -107,6 +147,8 @@ def abater_gasto():
         return jsonify(success=True)
     return jsonify(success=False), 404
 
+
+
 @app.route('/adicionar_ganho', methods=['POST'])
 def adicionar_ganho():
     nome = request.form.get('nome_ganho')
@@ -117,9 +159,42 @@ def adicionar_ganho():
         db.session.commit()
     return redirect(url_for('index'))
 
+
+
 @app.route('/adicionar')
 def adicionar():
     return render_template('adicionar.html')
+
+
+
+@app.route('/atualizar_gasto', methods=['POST'])
+def atualizar_gasto():
+    gasto_id = request.form.get('id')
+    p_pagas = int(request.form.get('parcelas_pagas') or 0)
+    p_reservadas = int(request.form.get('parcelas_reservadas') or 0)
+    
+    gasto = Gasto.query.get(gasto_id)
+    if gasto:
+        gasto.parcelas_pagas = p_pagas
+        gasto.parcelas_reservadas = p_reservadas
+        
+        # O total que saiu da conta para o saldo livre
+        comprometido = p_pagas + p_reservadas
+        gasto.falta_pagar = gasto.valor_total - (gasto.valor_mensal * comprometido)
+        
+        # Status visual do Card
+        if p_pagas >= gasto.total_parcelas:
+            gasto.status = 'Pago'
+        elif p_reservadas > 0:
+            gasto.status = 'Reservado' # Fica Amarelo!
+        else:
+            gasto.status = 'Pendente'
+            
+        db.session.commit()
+        return jsonify(success=True)
+    return jsonify(success=False), 404
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -44,6 +44,7 @@
     <main class="container mt-5">
         <div class="row g-4">
 
+            <!-- FORM DE ADICIONAR GANHOS -->
             <div class="col-md-4">
                 <div class="card p-4 card-ganhos h-100">
                     <h3 class="titulo-form" style="color: var(--gain-green)">
@@ -69,6 +70,7 @@
                 </div>
             </div>
 
+            <!-- FORM DE ADICIONAR GASTOS -->
             <div class="col-md-8">
                 <div class="card p-4 card-despesas h-100">
                     <h3 class="titulo-form" style="color: var(--accent-cyan)">
@@ -79,7 +81,7 @@
                             <div class="col-md-7 mb-3">
                                 <label class="form-label">O que você comprou?</label>
                                 <input type="text" name="nome_item" class="form-control"
-                                    placeholder="Ex: Lanche, Celular..." required>
+                                    placeholder="Ex: Lanche, Celular, Cabelo..." required>
                             </div>
                             <div class="col-md-5 mb-3">
                                 <label class="form-label">Categoria</label>
@@ -88,6 +90,7 @@
                                     <option value="Transporte">Transporte</option>
                                     <option value="Lazer">Lazer</option>
                                     <option value="Eletrônicos">Eletrônicos</option>
+                                    <option value="Manutenção">Manutenção</option>
                                     <option value="Outros">Outros</option>
                                 </select>
                             </div>
@@ -95,25 +98,26 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Valor Total do Item</label>
+                                <label class="form-label" id="label_valor">Valor Total do Item</label>
                                 <input type="number" step="0.01" name="valor_total" class="form-control"
                                     placeholder="R$ 0,00" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tipo de Gasto</label>
                                 <select name="tipo_pagamento" id="tipo_pagamento" class="form-select"
-                                    onchange="toggleParcelas()" required>
-                                    <option value="Unico">À Vista / Único</option>
-                                    <option value="Parcelado">Parcelado (Ex: Celular)</option>
-                                    <option value="Fixo">Fixo / Reserva (Ex: Gasolina, Cabelo)</option>
+                                    onchange="toggleCamposDinamicos()" required>
+                                    <option value="Unico">1. Gasto Único </option>
+                                    <option value="Parcelado">2. Gasto Parcelado </option>
+                                    <option value="Fixo">3. Fixo / Reserva </option>
                                 </select>
                             </div>
                         </div>
 
                         <div id="secao_parcelas"
                             style="display: none; border-left: 2px solid var(--accent-cyan); padding-left: 15px; margin-bottom: 20px;">
-                            <p class="text-info style=" font-size: 0.75rem;"><i class="bi bi-info-circle"></i> Detalhes
-                                do Parcelamento</p>
+                            <p class="text-info mb-2" style="font-size: 0.75rem;">
+                                <i class="bi bi-info-circle"></i> Detalhes do Parcelamento
+                            </p>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Valor da Parcela Mensal</label>
@@ -121,10 +125,22 @@
                                         placeholder="R$ 0,00">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Quantas parcelas já pagou?</label>
+                                    <label class="form-label">Total de Parcelas</label>
+                                    <input type="number" name="total_parcelas" class="form-control"
+                                        placeholder="Ex: 12">
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Já pagou quantas?</label>
                                     <input type="number" name="parcelas_pagas" class="form-control" placeholder="Ex: 0">
                                 </div>
                             </div>
+                        </div>
+
+                        <div id="secao_fixo"
+                            style="display: none; border-left: 2px solid #4ecdc4; padding-left: 15px; margin-bottom: 20px;">
+                            <p class="text-success mb-2" style="font-size: 0.75rem;">
+                                <i class="bi bi-shield-check"></i> Este item será mantido no Dashboard todos os meses.
+                            </p>
                         </div>
 
                         <div class="mb-4">
@@ -137,7 +153,6 @@
                         </button>
                     </form>
                 </div>
-
             </div>
         </div>
 
@@ -149,6 +164,25 @@
             const secaoParcelas = document.getElementById('secao_parcelas');
             // Só mostra o seletor de parcelas se for... Parcelado!
             secaoParcelas.style.display = (tipo === 'Parcelado') ? 'block' : 'none';
+        }
+
+        function toggleCamposDinamicos() {
+            const tipo = document.getElementById('tipo_pagamento').value;
+            const secaoParcelas = document.getElementById('secao_parcelas');
+            const secaoFixo = document.getElementById('secao_fixo');
+            const labelValor = document.getElementById('label_valor');
+
+            // Resetar exibições
+            secaoParcelas.style.display = 'none';
+            secaoFixo.style.display = 'none';
+            labelValor.innerText = "Valor Total do Item";
+
+            if (tipo === 'Parcelado') {
+                secaoParcelas.style.display = 'block';
+            } else if (tipo === 'Fixo') {
+                secaoFixo.style.display = 'block';
+                labelValor.innerText = "Valor Mensal da Reserva";
+            }
         }
     </script>
 
