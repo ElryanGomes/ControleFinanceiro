@@ -550,3 +550,50 @@ body {
     50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
     100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
 }
+
+/* Ajuste na base dos botões de mês e ano */
+.btn-mes, .btn-ano {
+    display: flex;             /* Transforma em flex para alinhar o texto */
+    align-items: center;       /* Centraliza verticalmente */
+    justify-content: center;    /* Centraliza horisontalmente */
+    text-decoration: none;     /* Remove o sublinhado de link */
+    transition: all 0.2s ease; /* Deixa a transição de cor suave */
+    cursor: pointer;
+    border: 1px solid transparent; 
+}
+
+/* Efeito ao passar o mouse (Hover) */
+.btn-mes:not(.disabled):hover, 
+.btn-ano:not(.disabled):hover {
+    background-color: rgba(255, 255, 255, 0.167); /* Um brilho leve ao fundo */
+    transform: translateY(-2px);                /* Sobe de leve o botão */
+    color: #fff;                                /* Garante que o texto fique branco */
+}
+
+/* Efeito ao clicar/selecionar (Focus) */
+.btn-mes:focus, .btn-ano:focus {
+    outline: 2px solid rgb(28, 78, 83); /* Um contorno da cor do seu tema */
+    outline-offset: 2px;
+}
+
+/* Estilo para os bloqueados (Futuro) */
+.btn-mes.disabled, .btn-ano.disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+/* Garante que o 'active' tenha prioridade total */
+.btn-mes.active {
+    background-color: #046b77 !important; /* Cor roxa/azul do seu tema */
+    color: white !important;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(140, 82, 255, 0.3);
+}
+
+.btn-ano.active{
+    background-color: #420aa3 !important; /* Mesma cor do active de mês para consistência */
+    color: white !important;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(140, 82, 255, 0.3);
+}

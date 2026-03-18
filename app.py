@@ -17,6 +17,8 @@ class Ganho(db.Model):
     nome = db.Column(db.String(100))
     valor = db.Column(db.Float)
     data = db.Column(db.String(20))
+    mes = db.Column(db.Integer)
+    ano = db.Column(db.Integer)
 
 class Gasto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,6 +33,8 @@ class Gasto(db.Model):
     falta_pagar = db.Column(db.Float)
     tipo = db.Column(db.String(20)) # 'Fixo', 'Parcelado' ou 'Unico'
     status = db.Column(db.String(20), default='Pendente')
+    mes = db.Column(db.Integer)
+    ano = db.Column(db.Integer)
 
 def verificar_reset_mensal(user_id, dia_pagamento=10):
     hoje = datetime.now()
@@ -62,30 +66,30 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    gastos = Gasto.query.all()
-    ganhos = Ganho.query.all()
+    # Pega mês e ano da URL. Se não existir, usa o atual.
+    mes_selecionado = request.args.get('mes', datetime.now().month, type=int)
+    ano_selecionado = request.args.get('ano', datetime.now().year, type=int)
+
+    # Filtra GASTOS e GANHOS pelo mês/ano dos botões
+    gastos = Gasto.query.filter_by(mes=mes_selecionado, ano=ano_selecionado).all()
+    ganhos = Ganho.query.filter_by(mes=mes_selecionado, ano=ano_selecionado).all()
     
     total_recebido = sum(g.valor for g in ganhos)
     
-    # 1. Gastos à Vista (Saída imediata do saldo)
+    # 1. Gastos à Vista
     gastos_a_vista = sum(i.valor_total for i in gastos if i.tipo == 'Unico')
     
-    # 2. Envelopes/Reservas Fixas (Dinheiro carimbado: Gasolina, Cabelo...)
+    # 2. Envelopes/Reservas Fixas
     reserva_envelopes = sum(i.valor_total for i in gastos if i.tipo == 'Fixo')
     
-    # 3. Parcelas (Compromissos e Reservas de Quitação)
+    # 3. Parcelas
     total_parcelas_comprometidas = 0
     for item in gastos:
         if item.tipo == 'Parcelado':
-            # Somamos as pagas (já saíram de fato) + as reservadas (você separou)
-            # Ambas diminuem o seu saldo "Livre" para gastar no dia a dia
             quantidade_fora_do_bolso = (item.parcelas_pagas or 0) + (item.parcelas_reservadas or 0)
             total_parcelas_comprometidas += (item.valor_mensal * quantidade_fora_do_bolso)
 
-    # Cálculo final das saídas
     total_saidas = gastos_a_vista + reserva_envelopes + total_parcelas_comprometidas
-    
-    # O saldo que aparece no card principal (Saldo Disponível Real)
     saldo_real_livre = total_recebido - total_saidas
     
     return render_template('index.html', 
@@ -93,8 +97,10 @@ def index():
                            ganhos=ganhos,
                            saldo=saldo_real_livre,
                            total_entradas=total_recebido,
-                           total_saidas=total_saidas)
-
+                           total_saidas=total_saidas,
+                           mes_ativo=mes_selecionado,
+                           ano_ativo=ano_selecionado,
+                           now=datetime.now())
 
 
 @app.route('/adicionar_gasto', methods=['POST'])
@@ -104,17 +110,24 @@ def adicionar_gasto():
     tipo = request.form.get('tipo_pagamento')
     v_total = float(request.form.get('valor_total') or 0)
     
-    # Valores padrão
+    # 1. Tenta pegar o mês e ano que você estava navegando no Dashboard
+    # Se não encontrar (ex: você entrou direto no link), usa a data atual como plano B
+    mes_contexto = request.form.get('mes_contexto', type=int)
+    ano_contexto = request.form.get('ano_contexto', type=int)
+    
+    if not mes_contexto or not ano_contexto:
+        hoje = datetime.now()
+        mes_contexto = hoje.month
+        ano_contexto = hoje.year
+    
     v_mensal = v_total
     p_pagas = 0
     total_p = 1
     status = 'Pendente'
 
-    # Se for À Vista, já nasce pago
     if tipo == 'Unico':
         status = 'Pago'
         p_pagas = 1
-    
     elif tipo == 'Parcelado':
         v_mensal = float(request.form.get('valor_parcela') or v_total)
         p_pagas = int(request.form.get('parcelas_pagas') or 0)
@@ -122,15 +135,24 @@ def adicionar_gasto():
         if p_pagas == total_p: status = 'Pago'
 
     novo_gasto = Gasto(
-        nome=nome, categoria=categoria, valor_total=v_total,
-        valor_mensal=v_mensal, total_parcelas=total_p,
-        parcelas_pagas=p_pagas, tipo=tipo,
+        nome=nome, 
+        categoria=categoria, 
+        valor_total=v_total,
+        valor_mensal=v_mensal, 
+        total_parcelas=total_p,
+        parcelas_pagas=p_pagas, 
+        tipo=tipo,
         falta_pagar=v_total - (v_mensal * p_pagas),
-        status=status
+        status=status,
+        mes=mes_contexto,  # <--- SALVA NO MÊS QUE VOCÊ ESTAVA VENDO
+        ano=ano_contexto    # <--- SALVA NO ANO QUE VOCÊ ESTAVA VENDO
     )
+    
     db.session.add(novo_gasto)
     db.session.commit()
-    return redirect(url_for('index'))
+    
+    # Redireciona de volta para o Dashboard exatamente no mês/ano em que o item foi criado
+    return redirect(url_for('index', mes=mes_contexto, ano=ano_contexto))
 
 
 # ROTA PARA EXIBIR O FORMULÁRIO DE EDIÇÃO
@@ -187,8 +209,16 @@ def abater_gasto():
 def adicionar_ganho():
     nome = request.form.get('nome_ganho')
     valor = float(request.form.get('valor_ganho') or 0)
+    
+    hoje = datetime.now() # DATA ATUAL
+    
     if nome and valor > 0:
-        novo = Ganho(nome=nome, valor=valor)
+        novo = Ganho(
+            nome=nome, 
+            valor=valor, 
+            mes=hoje.month, 
+            ano=hoje.year 
+        )
         db.session.add(novo)
         db.session.commit()
     return redirect(url_for('index'))
@@ -197,8 +227,10 @@ def adicionar_ganho():
 
 @app.route('/adicionar')
 def adicionar():
-    return render_template('adicionar.html')
-
+    # Pega o mês/ano da URL ou usa o atual se não vier nada
+    mes = request.args.get('mes', datetime.now().month, type=int)
+    ano = request.args.get('ano', datetime.now().year, type=int)
+    return render_template('adicionar.html', mes_selecionado=mes, ano_selecionado=ano)
 
 
 @app.route('/atualizar_gasto', methods=['POST'])

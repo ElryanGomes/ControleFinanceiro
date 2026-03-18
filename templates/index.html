@@ -41,28 +41,49 @@
         </nav>
     </header>
 
+
     <section id="dashboard-header" class="px-5 mt-4">
         <div class="d-flex align-items-stretch justify-content-between">
             <div class="painel-meses card p-3">
                 <div class="d-flex align-items-center h-100">
                     <div class="meses-grid">
-                        <button class="btn-mes active">Jan</button>
-                        <button class="btn-mes">Fev</button>
-                        <button class="btn-mes">Mar</button>
-                        <button class="btn-mes">Abr</button>
-                        <button class="btn-mes">Mai</button>
-                        <button class="btn-mes">Jun</button>
-                        <button class="btn-mes">Jul</button>
-                        <button class="btn-mes">Ago</button>
-                        <button class="btn-mes">Set</button>
-                        <button class="btn-mes">Out</button>
-                        <button class="btn-mes">Nov</button>
-                        <button class="btn-mes">Dez</button>
+                        {% set nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov',
+                        'Dez'] %}
+
+                        {# Pegamos o mês e ano real do sistema para comparar #}
+                        {% set mes_real = now.month %}
+                        {% set ano_real = now.year %}
+
+                        {% for i in range(1, 13) %}
+                        {# Lógica: Bloqueia se o ano for maior que o atual OU se for o mesmo ano mas o mês for maior #}
+                        {% set futuro = (ano_ativo > ano_real) or (ano_ativo == ano_real and i > mes_real) %}
+
+                        {% if futuro %}
+                        <span class="btn-mes disabled" style="opacity: 0.3; cursor: not-allowed;">
+                            {{ nomes[i-1] }}
+                        </span>
+                        {% else %}
+                        <a href="/?mes={{ i }}&ano={{ ano_ativo }}"
+                            class="btn-mes {{ 'active' if mes_ativo == i else '' }}">
+                            {{ nomes[i-1] }}
+                        </a>
+                        {% endif %}
+                        {% endfor %}
                     </div>
+
                     <div class="divisor-vertical mx-3"></div>
+
                     <div class="seletor-anos-col">
-                        <button class="btn-ano active">2025</button>
-                        <button class="btn-ano">2024</button>
+                        <a href="/?mes={{ mes_ativo }}&ano=2025"
+                            class="btn-ano {{ 'active' if ano_ativo == 2025 else '' }}">2025</a>
+
+                        {# Bloqueia o ano de 2026 se ainda estivermos em 2025 #}
+                        {% if ano_real < 2026 %} <span class="btn-ano disabled"
+                            style="opacity: 0.3; cursor: not-allowed;">2026</span>
+                            {% else %}
+                            <a href="/?mes={{ mes_ativo }}&ano=2026"
+                                class="btn-ano {{ 'active' if ano_ativo == 2026 else '' }}">2026</a>
+                            {% endif %}
                     </div>
                 </div>
             </div>
@@ -76,531 +97,581 @@
                         </div>
                         <div class="valor" id="ganhos">R$ {{ "{:,.2f}".format(total_entradas |
                             default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
-                        <div class="card-footer-mini" style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Referente ao mês</div>
+                        <div class="card-footer-mini"
+                            style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Referente ao mês</div>
                     </div>
 
-                    <div class="card card-dashboard card-gastos" style="width: 220px;">
-                        <div class="card-header-mini">
-                            <span class="label">Saídas</span>
-                            <i class="bi bi-arrow-down-left-circle text-danger"></i>
-                        </div>
-                        <div class="valor" id="gastos">R$ {{ "{:,.2f}".format(total_saidas |
-                            default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
-                        <div class="card-footer-mini" style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Previsão de débitos</div>
+                    <div class=" card card-dashboard card-gastos" style="width: 220px;">
+                            <div class="card-header-mini">
+                                <span class="label">Saídas</span>
+                                <i class="bi bi-arrow-down-left-circle text-danger"></i>
+                            </div>
+                            <div class="valor" id="gastos">R$ {{ "{:,.2f}".format(total_saidas |
+                                default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
+                            <div class="card-footer-mini"
+                                style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Previsão de débitos</div>
                     </div>
 
-                    <div class="card card-dashboard card-restante" style="width: 220px;">
-                        <div class="card-header-mini">
-                            <span class="label">Saldo Livre</span>
-                            <i class="bi bi-lightning-charge-fill text-info"></i>
-                        </div>
-                        <div class="valor" id="restante">R$ {{ "{:,.2f}".format(saldo |
-                            default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
-                        <div class="card-footer-mini" style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Disponível agora</div>
+                    <div class=" card card-dashboard card-restante" style="width: 220px;">
+                                <div class="card-header-mini">
+                                    <span class="label">Saldo Livre</span>
+                                    <i class="bi bi-lightning-charge-fill text-info"></i>
+                                </div>
+                                <div class="valor" id="restante">R$ {{ "{:,.2f}".format(saldo |
+                                    default(0)).replace(',','v').replace('.', ',').replace('v', '.') }}</div>
+                                <div class="card-footer-mini"
+                                    style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;"">Disponível agora</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div id="itens-lista" class="mt-5 px-5">
-        <div class="row px-4 mb-4 opacity-50 text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">
-            <div class="col-4">Descrição</div>
-            <div class="col-5 text-center">Progresso / Tipo</div>
-            <div class="col-3 text-end">Valor</div>
-        </div>
+    <div id=" itens-lista" class="mt-5 px-5">
+                                    <div class="row px-4 mb-4 opacity-50 text-uppercase"
+                                        style="font-size: 0.7rem; letter-spacing: 1px;">
+                                        <div class="col-4">Descrição</div>
+                                        <div class="col-5 text-center">Progresso / Tipo</div>
+                                        <div class="col-3 text-end">Valor</div>
+                                    </div>
 
-        <div class="lista-transacoes">
-            {% set tem_fixo = gastos | selectattr('tipo', 'equalto', 'Fixo') | list | length > 0 %}
-            {% set tem_parcelado = gastos | selectattr('tipo', 'equalto', 'Parcelado') | list | length > 0 %}
-            {% set tem_avista = gastos | selectattr('tipo', 'ne', 'Fixo') | selectattr('tipo', 'ne', 'Parcelado') | list
-            | length > 0 %}
+                                    <div class="lista-transacoes">
+                                        {% set tem_fixo = gastos | selectattr('tipo', 'equalto', 'Fixo') | list | length
+                                        > 0 %}
+                                        {% set tem_parcelado = gastos | selectattr('tipo', 'equalto', 'Parcelado') |
+                                        list | length > 0 %}
+                                        {% set tem_avista = gastos | selectattr('tipo', 'ne', 'Fixo') |
+                                        selectattr('tipo', 'ne', 'Parcelado') | list
+                                        | length > 0 %}
 
-            <!-- Se tiver 0 itens -->
-            {% if not tem_fixo and not tem_parcelado and not tem_avista %}
-            <div class="col-12 text-center py-5"
-                style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 24px; margin-top: 20px;">
-                <div class="mb-3 d-inline-block position-relative">
-                    <div
-                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: rgba(188, 19, 254, 0.2); filter: blur(20px); border-radius: 50%; animation: pulse-neon 2s infinite;">
-                    </div>
-                    <i class="bi bi-wallet2 text-white-50"
-                        style="font-size: 2.5rem; position: relative; z-index: 1;"></i>
-                </div>
-                <h5 class="fw-bold text-white mb-1" style="letter-spacing: -0.5px;">Tudo limpo por aqui!</h5>
-                <p class="text-white-50 mx-auto"
-                    style="font-size: 0.75rem; max-width: 250px; line-height: 1.4; opacity: 0.6;">
-                    Você ainda não registrou nenhum gasto. Comece adicionando suas despesas para ter o controle total.
-                </p>
-                <a href="/adicionar" class="btn btn-sm mt-2"
-                    style="background: rgba(188, 19, 254, 0.1); color: #bc13fe; border: 1px solid rgba(188, 19, 254, 0.3); border-radius: 12px; font-size: 0.7rem; font-weight: 700; padding: 8px 20px; text-transform: uppercase; letter-spacing: 1px;">
-                    <i class="bi bi-plus-lg me-1"></i> Novo Gasto
-                </a>
-            </div>
-            {% else %}
+                                        <!-- Se tiver 0 itens -->
+                                        {% if not tem_fixo and not tem_parcelado and not tem_avista %}
+                                        <div class="col-12 text-center py-5"
+                                            style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 24px; margin-top: 20px;">
+                                            <div class="mb-3 d-inline-block position-relative">
+                                                <div
+                                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: rgba(188, 19, 254, 0.2); filter: blur(20px); border-radius: 50%; animation: pulse-neon 2s infinite;">
+                                                </div>
+                                                <i class="bi bi-wallet2 text-white-50"
+                                                    style="font-size: 2.5rem; position: relative; z-index: 1;"></i>
+                                            </div>
+                                            <h5 class="fw-bold text-white mb-1" style="letter-spacing: -0.5px;">Tudo
+                                                limpo por aqui!</h5>
+                                            <p class="text-white-50 mx-auto"
+                                                style="font-size: 0.75rem; max-width: 250px; line-height: 1.4; opacity: 0.6;">
+                                                Você ainda não registrou nenhum gasto. Comece adicionando suas despesas
+                                                para ter o controle total.
+                                            </p>
+                                            <a href="/adicionar?mes={{ mes_ativo }}&ano={{ ano_ativo }}"
+                                                class="btn btn-sm mt-2"
+                                                style="background: rgba(188, 19, 254, 0.1); color: #bc13fe; border: 1px solid rgba(188, 19, 254, 0.3); border-radius: 12px; font-size: 0.7rem; font-weight: 700; padding: 8px 20px; text-transform: uppercase; letter-spacing: 1px;">
+                                                <i class="bi bi-plus-lg me-1"></i> Novo Gasto
+                                            </a>
+                                        </div>
+                                        {% else %}
 
 
-            <!-- SEÇÃO DE RESERVAS E CUSTOS FIXOS -->
-            {% if tem_fixo %}
-            <div class="secao-financeira mb-5">
-                <h4 class="text-info mb-3 h6 fw-bold text-uppercase"
-                    style="letter-spacing: 2px; border-left: 3px solid #4ecdc4; padding-left: 10px;">
-                    <i class="bi bi-shield-check me-2"></i> Reservas e Custos Fixos
-                </h4>
-                {% for item in gastos if item.tipo == 'Fixo' %}
-                <div class="card p-3 mb-2 bg-dark text-white border-0 shadow-sm"
-                    onclick="abrirDetalhes('{{ item.id }}')"
-                    style="cursor: pointer; border-radius: 12px; background: linear-gradient(145deg, #1e1e1e, #121212);">
-                    <div class="row align-items-center">
-                        <div class="col-4">
-                            <strong class="d-block" style="letter-spacing: -0.5px;">{{ item.nome }}</strong>
-                            <small
-                                style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;">
-                                {{ item.categoria }}
-                            </small>
-                        </div>
+                                        <!-- SEÇÃO DE RESERVAS E CUSTOS FIXOS -->
+                                        {% if tem_fixo %}
+                                        <div class="secao-financeira mb-5">
+                                            <h4 class="text-info mb-3 h6 fw-bold text-uppercase"
+                                                style="letter-spacing: 2px; border-left: 3px solid #4ecdc4; padding-left: 10px;">
+                                                <i class="bi bi-shield-check me-2"></i> Reservas e Custos Fixos
+                                            </h4>
+                                            {% for item in gastos if item.tipo == 'Fixo' %}
+                                            <div class="card p-3 mb-2 bg-dark text-white border-0 shadow-sm"
+                                                onclick="abrirDetalhes('{{ item.id }}')"
+                                                style="cursor: pointer; border-radius: 12px; background: linear-gradient(145deg, #1e1e1e, #121212);">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4">
+                                                        <strong class="d-block" style="letter-spacing: -0.5px;">{{
+                                                            item.nome }}</strong>
+                                                        <small
+                                                            style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;">
+                                                            {{ item.categoria }}
+                                                        </small>
+                                                    </div>
 
-                        <div class="col-5">
-                            {% set gasto_real = item.valor_gasto_real | default(0) %}
-                            {% set disponivel = item.valor_total - gasto_real %}
-                            {% set porcentagem_restante = (1 - (gasto_real / item.valor_total)) * 100 if
-                            item.valor_total > 0 else 0 %}
+                                                    <div class="col-5">
+                                                        {% set gasto_real = item.valor_gasto_real | default(0) %}
+                                                        {% set disponivel = item.valor_total - gasto_real %}
+                                                        {% set porcentagem_restante = (1 - (gasto_real /
+                                                        item.valor_total)) * 100 if
+                                                        item.valor_total > 0 else 0 %}
 
-                            {% if porcentagem_restante > 50 %}
-                            {% set cor_status = "#64ffda" %} {% elif porcentagem_restante > 15 %}
-                            {% set cor_status = "#ffc107" %} {% else %}
-                            {% set cor_status = "#ff5252" %} {% endif %}
+                                                        {% if porcentagem_restante > 50 %}
+                                                        {% set cor_status = "#64ffda" %} {% elif porcentagem_restante >
+                                                        15 %}
+                                                        {% set cor_status = "#ffc107" %} {% else %}
+                                                        {% set cor_status = "#ff5252" %} {% endif %}
 
-                            <div style="font-size: 0.7rem; font-weight: 600;"
-                                class="mb-1 d-flex justify-content-between">
-                                <span style="color: {{ cor_status }}; transition: 0.3s;">
-                                    Disponível: R$ {{ "{:,.2f}".format(disponivel).replace('.', ',') }}
-                                </span>
-                            </div>
+                                                        <div style="font-size: 0.7rem; font-weight: 600;"
+                                                            class="mb-1 d-flex justify-content-between">
+                                                            <span style="color: {{ cor_status }}; transition: 0.3s;">
+                                                                Disponível: R$ {{
+                                                                "{:,.2f}".format(disponivel).replace('.', ',') }}
+                                                            </span>
+                                                        </div>
 
-                            <div class="progress"
-                                style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px;">
-                                <div class="progress-bar"
-                                    style="width: {{ porcentagem_restante }}%; background-color: {{ cor_status }}; transition: width 0.5s ease, background-color 0.5s ease; border-radius: 10px;">
+                                                        <div class="progress"
+                                                            style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                                                            <div class="progress-bar"
+                                                                style="width: {{ porcentagem_restante }}%; background-color: {{ cor_status }}; transition: width 0.5s ease, background-color 0.5s ease; border-radius: 10px;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-3 text-end">
+                                                        <div class="fw-bold" style="font-size: 1rem;">R$ {{
+                                                            "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}
+                                                        </div>
+
+                                                        {% set gasto_total = item.valor_gasto_real | default(0) %}
+                                                        {% set valor_limite = item.valor_total | default(0) %}
+
+                                                        {% if gasto_total >= valor_limite and valor_limite > 0 %}
+                                                        <span class="badge bg-success"
+                                                            style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);">
+                                                            Concluído
+                                                        </span>
+                                                        {% else %}
+                                                        <span class="badge bg-danger text-white"
+                                                            style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">
+                                                            Pendente
+                                                        </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- CARD DE ITEM RESERVADO OU FIXO -->
+                                            <div id="modal-{{ item.id }}" class="detalhe-overlay"
+                                                onclick="fecharDetalhes('{{ item.id }}')"
+                                                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 12, 0.96); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+
+                                                <div class="detalhe-card text-center text-white"
+                                                    onclick="event.stopPropagation()"
+                                                    style="background: linear-gradient(165deg, #0a192f 0%, #050a14 100%); border: 1px solid rgba(78, 205, 196, 0.2); border-radius: 32px; padding: 2rem; max-width: 380px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(78, 205, 196, 0.1);">
+
+                                                    <div
+                                                        style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, #4ecdc4, transparent); border-radius: 0 0 10px 10px;">
+                                                    </div>
+
+                                                    <h1 class="fw-bold mb-1"
+                                                        style="font-size: 2.2rem; letter-spacing: -1.5px; line-height: 1;">
+                                                        {{
+                                                        item.nome }}</h1>
+                                                    <div class="mb-4 opacity-50"
+                                                        style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;">
+                                                        {{ item.categoria
+                                                        }} • CONTROLE DE RESERVA</div>
+
+                                                    <div class="p-4 rounded-4 mb-4"
+                                                        style="background: rgba(78, 205, 196, 0.03); border: 1px solid rgba(78, 205, 196, 0.15); position: relative; overflow: hidden;">
+                                                        <div
+                                                            style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(78, 205, 196, 0.1); filter: blur(25px); border-radius: 50%;">
+                                                        </div>
+
+                                                        <small class="d-block opacity-50 mb-1"
+                                                            style="font-size: 0.6rem; letter-spacing: 1px;">SALDO
+                                                            ATUAL NA RESERVA</small>
+                                                        <h2 class="fw-bold m-0"
+                                                            style="font-size: 2.2rem; color: #4ecdc4; text-shadow: 0 0 15px rgba(78, 205, 196, 0.3);">
+                                                            <small
+                                                                style="font-size: 1rem; opacity: 0.7; font-weight: 400; margin-right: 3px;">R$</small>{{
+                                                            "{:,.2f}".format(item.valor_total -
+                                                            (item.valor_gasto_real|default(0))).replace('.',
+                                                            ',') }}
+                                                        </h2>
+                                                    </div>
+
+                                                    <div class="mb-4 text-start">
+                                                        <label class="form-label ms-1 opacity-50"
+                                                            style="font-size: 0.6rem; letter-spacing: 1px;">REGISTRAR
+                                                            NOVO GASTO</label>
+                                                        <div class="input-group"
+                                                            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 5px; transition: 0.3s;">
+                                                            <span
+                                                                class="input-group-text bg-transparent border-0 text-white-50 px-3">R$</span>
+                                                            <input type="number" id="input-consumo-{{ item.id }}"
+                                                                class="form-control bg-transparent border-0 text-white fw-bold"
+                                                                placeholder="0,00"
+                                                                style="box-shadow: none; font-size: 1.1rem;">
+                                                            <button class="btn px-4 fw-bold"
+                                                                onclick="registrarConsumo('{{ item.id }}')"
+                                                                style="background: #4ecdc4; color: #050a14; border-radius: 12px; font-size: 0.75rem; letter-spacing: 1px; transition: 0.3s;">
+                                                                ABATER
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <button class="btn w-100 py-2 fw-bold"
+                                                        onclick="fecharDetalhes('{{ item.id }}')"
+                                                        style="background: transparent; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;">
+                                                        Voltar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+
+
+                                        <!-- SEÇÃO DE COMPRAS PARCELADAS -->
+                                        {% if tem_parcelado %}
+                                        <div class="secao-financeira mb-5">
+                                            <h4 class="text-warning mb-3 h6 fw-bold text-uppercase"
+                                                style="letter-spacing: 2px; border-left: 3px solid #ffc107; padding-left: 10px;">
+                                                <i class="bi bi-calendar3 me-2"></i> Compras Parceladas
+                                            </h4>
+                                            {% for item in gastos if item.tipo == 'Parcelado' %}
+                                            <div class="card p-3 mb-2 bg-dark text-white border-0 shadow-sm"
+                                                onclick="abrirDetalhes('{{ item.id }}')"
+                                                style="cursor: pointer; border-radius: 12px; background: linear-gradient(145deg, #1e1e1e, #121212);">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4">
+                                                        <strong class="d-block">{{ item.nome }}</strong>
+                                                        <small
+                                                            style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;">
+                                                            {{ item.categoria }}
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-5">
+                                                        {% set total = item.total_parcelas | default(1) %}
+                                                        {% set pagas = item.parcelas_pagas | default(0) %}
+                                                        {% set porcentagem_paga = (pagas / total) * 100 %}
+
+                                                        {% if porcentagem_paga == 100 %}
+                                                        {% set cor_texto = "#64ffda" %} {% elif porcentagem_paga > 40 %}
+                                                        {% set cor_texto = "#ffc107" %} {% else %}
+                                                        {% set cor_texto = "#ff5252" %} {% endif %}
+
+                                                        <div style="font-size: 0.7rem; font-weight: 700;"
+                                                            class="mb-1 d-flex justify-content-between">
+                                                            <span
+                                                                style="color: {{ cor_texto }}; transition: all 0.3s ease; text-shadow: 0 0 8px {{ cor_texto }}44;">
+                                                                Progresso: {{ pagas }}/{{ total }}
+                                                            </span>
+                                                            <span class="opacity-50" style="font-size: 0.6rem;">{{
+                                                                porcentagem_paga|round|int
+                                                                }}%</span>
+                                                        </div>
+
+                                                        <div class="progress"
+                                                            style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                                                            <div class="progress-bar"
+                                                                style="width: {{ porcentagem_paga }}%; background-color: {{ cor_texto }}; transition: width 0.5s ease, background-color 0.5s ease; border-radius: 10px; box-shadow: 0 0 10px {{ cor_texto }}66;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-3 text-end">
+                                                        <div class="fw-bold" style="font-size: 1rem;">R$ {{
+                                                            "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}
+                                                        </div>
+
+                                                        {% set total_p = item.total_parcelas | default(1) %}
+                                                        {% set pagas_p = item.parcelas_pagas | default(0) %}
+
+                                                        {% if pagas_p >= total_p %}
+                                                        <span class="badge bg-success"
+                                                            style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);">
+                                                            Concluído
+                                                        </span>
+                                                        {% else %}
+                                                        <span class="badge bg-danger text-white"
+                                                            style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">
+                                                            Pendente
+                                                        </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- CARD DE ITEM PARCELADO -->
+                                            <div id="modal-{{ item.id }}" class="detalhe-overlay"
+                                                onclick="fecharDetalhes('{{ item.id }}')"
+                                                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 12, 0.96); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+
+                                                <div class="detalhe-card text-center text-white"
+                                                    onclick="event.stopPropagation()"
+                                                    style="background: linear-gradient(165deg, #0a192f 0%, #050a14 100%); border: 1px solid rgba(188, 19, 254, 0.2); border-radius: 32px; padding: 2rem; max-width: 420px; width: 95%; position: relative; box-shadow: 0 0 30px rgba(188, 19, 254, 0.1);">
+
+                                                    <div
+                                                        style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, #bc13fe, transparent); border-radius: 0 0 10px 10px;">
+                                                    </div>
+
+                                                    <h1 class="fw-bold mb-1"
+                                                        style="font-size: 2.2rem; letter-spacing: -1.5px; line-height: 1; color: #fff;">
+                                                        {{ item.nome
+                                                        }}</h1>
+                                                    <div class="mb-3 opacity-50"
+                                                        style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;">
+                                                        {{ item.categoria
+                                                        }} • STATUS DE PAGAMENTO</div>
+
+                                                    <div class="d-flex justify-content-around align-items-center mb-4 p-3 rounded-4"
+                                                        style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                                                        <div>
+                                                            <small class="d-block opacity-40 mb-1"
+                                                                style="font-size: 0.5rem; letter-spacing: 1px;">VALOR
+                                                                TOTAL</small>
+                                                            <span class="fw-bold"
+                                                                style="font-size: 1.1rem; color: #e6f1ff;">R$ {{
+                                                                "{:,.2f}".format(item.valor_total).replace('.', ',')
+                                                                }}</span>
+                                                        </div>
+                                                        <div
+                                                            style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);">
+                                                        </div>
+                                                        <div>
+                                                            <small class="d-block opacity-40 mb-1"
+                                                                style="font-size: 0.5rem; letter-spacing: 1px;">RESTANTE</small>
+                                                            <span class="fw-bold"
+                                                                style="font-size: 1.1rem; color: #ff5252;">R$ {{
+                                                                "{:,.2f}".format(item.valor_total -
+                                                                (item.valor_pago_acumulado |
+                                                                default(0))).replace('.', ',') }}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-4 text-start">
+                                                        <small class="d-block opacity-50 mb-2 ms-1"
+                                                            style="font-size: 0.6rem; letter-spacing: 1px;">CLIQUE NO
+                                                            MÊS PARA ALTERAR</small>
+                                                        <div class="d-flex flex-wrap gap-2 justify-content-start scroll-custom"
+                                                            style="max-height: 180px; overflow-y: auto; padding-right: 5px;">
+
+                                                            {% for i in range(1, item.total_parcelas + 1) %}
+                                                            <button type="button" class="btn-parcela-item"
+                                                                onclick="alternarStatusVisual(this)"
+                                                                data-status="{% if i <= item.parcelas_pagas %}Pago{% elif i <= (item.parcelas_pagas + item.parcelas_reservadas|default(0)) %}Reservado{% else %}Pendente{% endif %}"
+                                                                style="flex: 1 0 21%; min-width: 75px; height: 48px; border-radius: 12px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.4);">
+                                                                {{ i }}ª Parc.
+                                                                <small class="d-block status-label"
+                                                                    style="font-size: 0.5rem; text-transform: uppercase; margin-top: 2px; opacity: 0.8;">
+                                                                    {% if i <= item.parcelas_pagas %}Pago{% elif i
+                                                                        <=(item.parcelas_pagas +
+                                                                        item.parcelas_reservadas|default(0))
+                                                                        %}Reservado{% else %}Pendente{% endif %}
+                                                                        </small>
+                                                            </button>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row g-2">
+                                                        <div class="col-6">
+                                                            <button class="btn w-100 py-2 fw-bold"
+                                                                onclick="fecharDetalhes('{{ item.id }}')"
+                                                                style="background: transparent; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; font-size: 0.7rem; letter-spacing: 1px;">
+                                                                VOLTAR
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <button class="btn btn-save-parcelas w-100 py-2 fw-bold"
+                                                                onclick="salvarAlteracoesParcelas('{{ item.id }}')"
+                                                                style="background: #fff; color: #050a14; border: none; border-radius: 14px; font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 8px 15px rgba(255,255,255,0.1);">
+                                                                SALVAR
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+
+
+                                        <!-- SEÇÃO DE SAÍDAS À VISTA -->
+                                        {% if tem_avista %}
+                                        <div class="secao-financeira mb-5">
+                                            <h4 class="text-success mb-3 h6 fw-bold text-uppercase"
+                                                style="letter-spacing: 2px; border-left: 3px solid #198754; padding-left: 10px;">
+                                                <i class="bi bi-lightning-fill me-2"></i> Saídas à Vista
+                                            </h4>
+                                            {% for item in gastos if item.tipo not in ['Fixo', 'Parcelado'] %}
+                                            <div class="card p-3 mb-2 bg-dark text-white border-0 shadow-sm"
+                                                onclick="abrirDetalhes('{{ item.id }}')"
+                                                style="cursor: pointer; border-radius: 12px; background: linear-gradient(145deg, #1e1e1e, #121212);">
+                                                <div class="row align-items-center">
+                                                    <div class="col-4">
+                                                        <strong class="d-block">{{ item.nome }}</strong>
+                                                        <small
+                                                            style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;">
+                                                            {{ item.categoria }}
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-5 text-center">
+                                                        <small class="text-success fw-bold d-block"
+                                                            style="font-size: 0.6rem;">PAGO TOTAL</small>
+                                                    </div>
+                                                    <div class="col-3 text-end">
+                                                        <div class="fw-bold" style="font-size: 1rem;">R$ {{
+                                                            "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}
+                                                        </div>
+
+                                                        {% if item.status == 'Pago' %}
+                                                        <span class="badge bg-success"
+                                                            style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);">
+                                                            Liquidado
+                                                        </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- CARD DE ITEM A VISTA -->
+                                            <div id="modal-{{ item.id }}" class="detalhe-overlay"
+                                                onclick="fecharDetalhes('{{ item.id }}')"
+                                                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 12, 0.96); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+
+                                                <div class="detalhe-card text-center text-white"
+                                                    onclick="event.stopPropagation()"
+                                                    style="background: linear-gradient(165deg, #0a192f 0%, #050a14 100%); border: 1px solid rgba(0, 242, 255, 0.15); border-radius: 32px; padding: 2.5rem 2rem; max-width: 380px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.05);">
+
+                                                    <div
+                                                        style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, #00f2ff, transparent); border-radius: 0 0 10px 10px;">
+                                                    </div>
+
+                                                    <div class="mb-1" style="opacity: 0.4;">
+                                                        <span
+                                                            style="font-size: 0.55rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; color: #a5b4fc;">
+                                                            {{ item.categoria }} • À VISTA
+                                                        </span>
+                                                    </div>
+
+                                                    <h1 class="fw-bold mb-3"
+                                                        style="font-size: 2.6rem; letter-spacing: -1.5px; line-height: 1; background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                                        {{ item.nome }}
+                                                    </h1>
+
+                                                    <div class="mb-4">
+                                                        <span class="fw-bold"
+                                                            style="font-size: 2.2rem; color: #64ffda; letter-spacing: -1px; text-shadow: 0 0 15px rgba(100, 255, 218, 0.2);">
+                                                            <small
+                                                                style="font-size: 1rem; opacity: 0.6; font-weight: 400; margin-right: 2px;">R$</small>{{
+                                                            "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="mb-4 position-relative">
+                                                        <i class="bi bi-patch-check-fill"
+                                                            style="font-size: 3rem; color: #64ffda; opacity: 0.9;"></i>
+                                                        <p class="mt-2 mb-0 fw-bold"
+                                                            style="font-size: 0.55rem; letter-spacing: 3px; color: #64ffda; text-transform: uppercase; opacity: 0.7;">
+                                                            Liquidado</p>
+                                                    </div>
+
+                                                    <button class="btn w-100 py-2 fw-bold btn-premium-close"
+                                                        onclick="fecharDetalhes('{{ item.id }}')"
+                                                        style="background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; font-size: 0.7rem; letter-spacing: 2px; transition: all 0.3s ease; text-transform: uppercase;">
+                                                        Fechar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="col-3 text-end">
-                            <div class="fw-bold" style="font-size: 1rem;">R$ {{
-                                "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}</div>
+                                <script
+                                    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                                <script>
+                                    // 1. Controle de Exibição
+                                    function abrirDetalhes(id) {
+                                        const modal = document.getElementById('modal-' + id);
+                                        if (modal) modal.style.display = 'flex';
+                                    }
 
-                            {% set gasto_total = item.valor_gasto_real | default(0) %}
-                            {% set valor_limite = item.valor_total | default(0) %}
+                                    function fecharDetalhes(id) {
+                                        const modal = document.getElementById('modal-' + id);
+                                        if (modal) modal.style.display = 'none';
+                                    }
 
-                            {% if gasto_total >= valor_limite and valor_limite > 0 %}
-                            <span class="badge bg-success"
-                                style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);">
-                                Concluído
-                            </span>
-                            {% else %}
-                            <span class="badge bg-danger text-white"
-                                style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">
-                                Pendente
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+                                    // 2. Lógica Visual das Parcelas (Troca de cor no clique)
+                                    function alternarStatusVisual(el) {
+                                        const estados = ["Pendente", "Reservado", "Pago"];
+                                        let atual = el.getAttribute("data-status") || "Pendente";
+                                        let proximo = estados[(estados.indexOf(atual) + 1) % estados.length];
 
-                <!-- CARD DE ITEM RESERVADO OU FIXO -->
-                <div id="modal-{{ item.id }}" class="detalhe-overlay" onclick="fecharDetalhes('{{ item.id }}')"
-                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 12, 0.96); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                                        el.setAttribute("data-status", proximo);
+                                        const label = el.querySelector('.status-label');
+                                        if (label) label.innerText = proximo;
+                                    }
 
-                    <div class="detalhe-card text-center text-white" onclick="event.stopPropagation()"
-                        style="background: linear-gradient(165deg, #0a192f 0%, #050a14 100%); border: 1px solid rgba(78, 205, 196, 0.2); border-radius: 32px; padding: 2rem; max-width: 380px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(78, 205, 196, 0.1);">
+                                    // 3. SALVAR PARCELADOS (O que estava dando erro)
+                                    function salvarAlteracoesParcelas(id) {
+                                        const modal = document.getElementById(`modal-${id}`);
+                                        const botoes = modal.querySelectorAll('.btn-parcela-item');
 
-                        <div
-                            style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, #4ecdc4, transparent); border-radius: 0 0 10px 10px;">
-                        </div>
+                                        let pagas = 0;
+                                        let reservadas = 0;
 
-                        <h1 class="fw-bold mb-1" style="font-size: 2.2rem; letter-spacing: -1.5px; line-height: 1;">{{
-                            item.nome }}</h1>
-                        <div class="mb-4 opacity-50"
-                            style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;">{{ item.categoria
-                            }} • CONTROLE DE RESERVA</div>
+                                        // Conta o status de cada botão clicado
+                                        botoes.forEach(btn => {
+                                            const status = btn.getAttribute('data-status');
+                                            if (status === 'Pago') pagas++;
+                                            if (status === 'Reservado') reservadas++;
+                                        });
 
-                        <div class="p-4 rounded-4 mb-4"
-                            style="background: rgba(78, 205, 196, 0.03); border: 1px solid rgba(78, 205, 196, 0.15); position: relative; overflow: hidden;">
-                            <div
-                                style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(78, 205, 196, 0.1); filter: blur(25px); border-radius: 50%;">
-                            </div>
+                                        const formData = new FormData();
+                                        formData.append('id', id);
+                                        formData.append('parcelas_pagas', pagas);
+                                        formData.append('parcelas_reservadas', reservadas);
 
-                            <small class="d-block opacity-50 mb-1" style="font-size: 0.6rem; letter-spacing: 1px;">SALDO
-                                ATUAL NA RESERVA</small>
-                            <h2 class="fw-bold m-0"
-                                style="font-size: 2.2rem; color: #4ecdc4; text-shadow: 0 0 15px rgba(78, 205, 196, 0.3);">
-                                <small
-                                    style="font-size: 1rem; opacity: 0.7; font-weight: 400; margin-right: 3px;">R$</small>{{
-                                "{:,.2f}".format(item.valor_total - (item.valor_gasto_real|default(0))).replace('.',
-                                ',') }}
-                            </h2>
-                        </div>
+                                        // ATENÇÃO: Verifique se sua rota no app.py é exatamente '/atualizar_gasto'
+                                        fetch('/atualizar_gasto', {
+                                            method: 'POST',
+                                            body: formData
+                                        })
+                                            .then(r => r.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    window.location.reload(); // Recarrega para ver o saldo atualizado
+                                                } else {
+                                                    alert("Erro ao salvar no banco de dados: " + (data.error || "Erro desconhecido"));
+                                                }
+                                            })
+                                            .catch(err => alert("Erro de conexão com o servidor."));
+                                    }
 
-                        <div class="mb-4 text-start">
-                            <label class="form-label ms-1 opacity-50"
-                                style="font-size: 0.6rem; letter-spacing: 1px;">REGISTRAR NOVO GASTO</label>
-                            <div class="input-group"
-                                style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 5px; transition: 0.3s;">
-                                <span class="input-group-text bg-transparent border-0 text-white-50 px-3">R$</span>
-                                <input type="number" id="input-consumo-{{ item.id }}"
-                                    class="form-control bg-transparent border-0 text-white fw-bold" placeholder="0,00"
-                                    style="box-shadow: none; font-size: 1.1rem;">
-                                <button class="btn px-4 fw-bold" onclick="registrarConsumo('{{ item.id }}')"
-                                    style="background: #4ecdc4; color: #050a14; border-radius: 12px; font-size: 0.75rem; letter-spacing: 1px; transition: 0.3s;">
-                                    ABATER
-                                </button>
-                            </div>
-                        </div>
+                                    // 4. ABATER GASTOS (Fixo / Reserva)
+                                    function registrarConsumo(id) {
+                                        const input = document.getElementById(`input-consumo-${id}`);
+                                        const valorAbatido = parseFloat(input.value);
 
-                        <button class="btn w-100 py-2 fw-bold" onclick="fecharDetalhes('{{ item.id }}')"
-                            style="background: transparent; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;">
-                            Voltar
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+                                        if (isNaN(valorAbatido) || valorAbatido <= 0) {
+                                            alert("Digite um valor válido para abater.");
+                                            return;
+                                        }
 
+                                        const formData = new FormData();
+                                        formData.append('id', id);
+                                        formData.append('valor_abatido', valorAbatido);
 
-            <!-- SEÇÃO DE COMPRAS PARCELADAS -->
-            {% if tem_parcelado %}
-            <div class="secao-financeira mb-5">
-                <h4 class="text-warning mb-3 h6 fw-bold text-uppercase"
-                    style="letter-spacing: 2px; border-left: 3px solid #ffc107; padding-left: 10px;">
-                    <i class="bi bi-calendar3 me-2"></i> Compras Parceladas
-                </h4>
-                {% for item in gastos if item.tipo == 'Parcelado' %}
-                <div class="card p-3 mb-2 bg-dark text-white border-0 shadow-sm"
-                    onclick="abrirDetalhes('{{ item.id }}')"
-                    style="cursor: pointer; border-radius: 12px; background: linear-gradient(145deg, #1e1e1e, #121212);">
-                    <div class="row align-items-center">
-                        <div class="col-4">
-                            <strong class="d-block">{{ item.nome }}</strong>
-                            <small
-                                style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;">
-                                {{ item.categoria }}
-                            </small>
-                        </div>
-                        <div class="col-5">
-                            {% set total = item.total_parcelas | default(1) %}
-                            {% set pagas = item.parcelas_pagas | default(0) %}
-                            {% set porcentagem_paga = (pagas / total) * 100 %}
+                                        fetch('/abater_gasto', {
+                                            method: 'POST',
+                                            body: formData
+                                        })
+                                            .then(r => r.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    window.location.reload();
+                                                } else {
+                                                    alert("Erro ao abater: " + data.error);
+                                                }
+                                            });
+                                    }
 
-                            {% if porcentagem_paga == 100 %}
-                            {% set cor_texto = "#64ffda" %} {% elif porcentagem_paga > 40 %}
-                            {% set cor_texto = "#ffc107" %} {% else %}
-                            {% set cor_texto = "#ff5252" %} {% endif %}
-
-                            <div style="font-size: 0.7rem; font-weight: 700;"
-                                class="mb-1 d-flex justify-content-between">
-                                <span
-                                    style="color: {{ cor_texto }}; transition: all 0.3s ease; text-shadow: 0 0 8px {{ cor_texto }}44;">
-                                    Progresso: {{ pagas }}/{{ total }}
-                                </span>
-                                <span class="opacity-50" style="font-size: 0.6rem;">{{ porcentagem_paga|round|int
-                                    }}%</span>
-                            </div>
-
-                            <div class="progress"
-                                style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px;">
-                                <div class="progress-bar"
-                                    style="width: {{ porcentagem_paga }}%; background-color: {{ cor_texto }}; transition: width 0.5s ease, background-color 0.5s ease; border-radius: 10px; box-shadow: 0 0 10px {{ cor_texto }}66;">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-3 text-end">
-                            <div class="fw-bold" style="font-size: 1rem;">R$ {{
-                                "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}</div>
-
-                            {% set total_p = item.total_parcelas | default(1) %}
-                            {% set pagas_p = item.parcelas_pagas | default(0) %}
-
-                            {% if pagas_p >= total_p %}
-                            <span class="badge bg-success"
-                                style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);">
-                                Concluído
-                            </span>
-                            {% else %}
-                            <span class="badge bg-danger text-white"
-                                style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">
-                                Pendente
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD DE ITEM PARCELADO -->
-                <div id="modal-{{ item.id }}" class="detalhe-overlay" onclick="fecharDetalhes('{{ item.id }}')"
-                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 12, 0.96); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
-
-                    <div class="detalhe-card text-center text-white" onclick="event.stopPropagation()"
-                        style="background: linear-gradient(165deg, #0a192f 0%, #050a14 100%); border: 1px solid rgba(188, 19, 254, 0.2); border-radius: 32px; padding: 2rem; max-width: 420px; width: 95%; position: relative; box-shadow: 0 0 30px rgba(188, 19, 254, 0.1);">
-
-                        <div
-                            style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, #bc13fe, transparent); border-radius: 0 0 10px 10px;">
-                        </div>
-
-                        <h1 class="fw-bold mb-1"
-                            style="font-size: 2.2rem; letter-spacing: -1.5px; line-height: 1; color: #fff;">{{ item.nome
-                            }}</h1>
-                        <div class="mb-3 opacity-50"
-                            style="font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;">{{ item.categoria
-                            }} • STATUS DE PAGAMENTO</div>
-
-                        <div class="d-flex justify-content-around align-items-center mb-4 p-3 rounded-4"
-                            style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
-                            <div>
-                                <small class="d-block opacity-40 mb-1"
-                                    style="font-size: 0.5rem; letter-spacing: 1px;">VALOR TOTAL</small>
-                                <span class="fw-bold" style="font-size: 1.1rem; color: #e6f1ff;">R$ {{
-                                    "{:,.2f}".format(item.valor_total).replace('.', ',') }}</span>
-                            </div>
-                            <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1);"></div>
-                            <div>
-                                <small class="d-block opacity-40 mb-1"
-                                    style="font-size: 0.5rem; letter-spacing: 1px;">RESTANTE</small>
-                                <span class="fw-bold" style="font-size: 1.1rem; color: #ff5252;">R$ {{
-                                    "{:,.2f}".format(item.valor_total - (item.valor_pago_acumulado |
-                                    default(0))).replace('.', ',') }}</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-4 text-start">
-                            <small class="d-block opacity-50 mb-2 ms-1"
-                                style="font-size: 0.6rem; letter-spacing: 1px;">CLIQUE NO MÊS PARA ALTERAR</small>
-                            <div class="d-flex flex-wrap gap-2 justify-content-start scroll-custom"
-                                style="max-height: 180px; overflow-y: auto; padding-right: 5px;">
-
-                                {% for i in range(1, item.total_parcelas + 1) %}
-                                <button type="button" class="btn-parcela-item" onclick="alternarStatusVisual(this)"
-                                    data-status="{% if i <= item.parcelas_pagas %}Pago{% elif i <= (item.parcelas_pagas + item.parcelas_reservadas|default(0)) %}Reservado{% else %}Pendente{% endif %}"
-                                    style="flex: 1 0 21%; min-width: 75px; height: 48px; border-radius: 12px; font-size: 0.65rem; font-weight: 700; transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.4);">
-                                    {{ i }}ª Parc.
-                                    <small class="d-block status-label"
-                                        style="font-size: 0.5rem; text-transform: uppercase; margin-top: 2px; opacity: 0.8;">
-                                        {% if i <= item.parcelas_pagas %}Pago{% elif i <=(item.parcelas_pagas +
-                                            item.parcelas_reservadas|default(0)) %}Reservado{% else %}Pendente{% endif
-                                            %} </small>
-                                </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <button class="btn w-100 py-2 fw-bold" onclick="fecharDetalhes('{{ item.id }}')"
-                                    style="background: transparent; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; font-size: 0.7rem; letter-spacing: 1px;">
-                                    VOLTAR
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn btn-save-parcelas w-100 py-2 fw-bold"
-                                    onclick="salvarAlteracoesParcelas('{{ item.id }}')"
-                                    style="background: #fff; color: #050a14; border: none; border-radius: 14px; font-size: 0.7rem; letter-spacing: 1px; box-shadow: 0 8px 15px rgba(255,255,255,0.1);">
-                                    SALVAR
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-
-            <!-- SEÇÃO DE SAÍDAS À VISTA -->
-            {% if tem_avista %}
-            <div class="secao-financeira mb-5">
-                <h4 class="text-success mb-3 h6 fw-bold text-uppercase"
-                    style="letter-spacing: 2px; border-left: 3px solid #198754; padding-left: 10px;">
-                    <i class="bi bi-lightning-fill me-2"></i> Saídas à Vista
-                </h4>
-                {% for item in gastos if item.tipo not in ['Fixo', 'Parcelado'] %}
-                <div class="card p-3 mb-2 bg-dark text-white border-0 shadow-sm"
-                    onclick="abrirDetalhes('{{ item.id }}')"
-                    style="cursor: pointer; border-radius: 12px; background: linear-gradient(145deg, #1e1e1e, #121212);">
-                    <div class="row align-items-center">
-                        <div class="col-4">
-                            <strong class="d-block">{{ item.nome }}</strong>
-                            <small
-                                style="font-size: 0.65rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; opacity: 0.8;">
-                                {{ item.categoria }}
-                            </small>
-                        </div>
-                        <div class="col-5 text-center">
-                            <small class="text-success fw-bold d-block" style="font-size: 0.6rem;">PAGO TOTAL</small>
-                        </div>
-                        <div class="col-3 text-end">
-                            <div class="fw-bold" style="font-size: 1rem;">R$ {{
-                                "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}</div>
-
-                            {% if item.status == 'Pago' %}
-                            <span class="badge bg-success"
-                                style="font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);">
-                                Liquidado
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD DE ITEM A VISTA -->
-                <div id="modal-{{ item.id }}" class="detalhe-overlay" onclick="fecharDetalhes('{{ item.id }}')"
-                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 12, 0.96); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
-
-                    <div class="detalhe-card text-center text-white" onclick="event.stopPropagation()"
-                        style="background: linear-gradient(165deg, #0a192f 0%, #050a14 100%); border: 1px solid rgba(0, 242, 255, 0.15); border-radius: 32px; padding: 2.5rem 2rem; max-width: 380px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.05);">
-
-                        <div
-                            style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: linear-gradient(90deg, transparent, #00f2ff, transparent); border-radius: 0 0 10px 10px;">
-                        </div>
-
-                        <div class="mb-1" style="opacity: 0.4;">
-                            <span
-                                style="font-size: 0.55rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; color: #a5b4fc;">
-                                {{ item.categoria }} • À VISTA
-                            </span>
-                        </div>
-
-                        <h1 class="fw-bold mb-3"
-                            style="font-size: 2.6rem; letter-spacing: -1.5px; line-height: 1; background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                            {{ item.nome }}
-                        </h1>
-
-                        <div class="mb-4">
-                            <span class="fw-bold"
-                                style="font-size: 2.2rem; color: #64ffda; letter-spacing: -1px; text-shadow: 0 0 15px rgba(100, 255, 218, 0.2);">
-                                <small
-                                    style="font-size: 1rem; opacity: 0.6; font-weight: 400; margin-right: 2px;">R$</small>{{
-                                "{:,.2f}".format(item.valor_mensal).replace('.', ',') }}
-                            </span>
-                        </div>
-
-                        <div class="mb-4 position-relative">
-                            <i class="bi bi-patch-check-fill"
-                                style="font-size: 3rem; color: #64ffda; opacity: 0.9;"></i>
-                            <p class="mt-2 mb-0 fw-bold"
-                                style="font-size: 0.55rem; letter-spacing: 3px; color: #64ffda; text-transform: uppercase; opacity: 0.7;">
-                                Liquidado</p>
-                        </div>
-
-                        <button class="btn w-100 py-2 fw-bold btn-premium-close"
-                            onclick="fecharDetalhes('{{ item.id }}')"
-                            style="background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; font-size: 0.7rem; letter-spacing: 2px; transition: all 0.3s ease; text-transform: uppercase;">
-                            Fechar
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            {% endif %}
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 1. Controle de Exibição
-        function abrirDetalhes(id) {
-            const modal = document.getElementById('modal-' + id);
-            if (modal) modal.style.display = 'flex';
-        }
-
-        function fecharDetalhes(id) {
-            const modal = document.getElementById('modal-' + id);
-            if (modal) modal.style.display = 'none';
-        }
-
-        // 2. Lógica Visual das Parcelas (Troca de cor no clique)
-        function alternarStatusVisual(el) {
-            const estados = ["Pendente", "Reservado", "Pago"];
-            let atual = el.getAttribute("data-status") || "Pendente";
-            let proximo = estados[(estados.indexOf(atual) + 1) % estados.length];
-
-            el.setAttribute("data-status", proximo);
-            const label = el.querySelector('.status-label');
-            if (label) label.innerText = proximo;
-        }
-
-        // 3. SALVAR PARCELADOS (O que estava dando erro)
-        function salvarAlteracoesParcelas(id) {
-            const modal = document.getElementById(`modal-${id}`);
-            const botoes = modal.querySelectorAll('.btn-parcela-item');
-
-            let pagas = 0;
-            let reservadas = 0;
-
-            // Conta o status de cada botão clicado
-            botoes.forEach(btn => {
-                const status = btn.getAttribute('data-status');
-                if (status === 'Pago') pagas++;
-                if (status === 'Reservado') reservadas++;
-            });
-
-            const formData = new FormData();
-            formData.append('id', id);
-            formData.append('parcelas_pagas', pagas);
-            formData.append('parcelas_reservadas', reservadas);
-
-            // ATENÇÃO: Verifique se sua rota no app.py é exatamente '/atualizar_gasto'
-            fetch('/atualizar_gasto', {
-                method: 'POST',
-                body: formData
-            })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload(); // Recarrega para ver o saldo atualizado
-                    } else {
-                        alert("Erro ao salvar no banco de dados: " + (data.error || "Erro desconhecido"));
-                    }
-                })
-                .catch(err => alert("Erro de conexão com o servidor."));
-        }
-
-        // 4. ABATER GASTOS (Fixo / Reserva)
-        function registrarConsumo(id) {
-            const input = document.getElementById(`input-consumo-${id}`);
-            const valorAbatido = parseFloat(input.value);
-
-            if (isNaN(valorAbatido) || valorAbatido <= 0) {
-                alert("Digite um valor válido para abater.");
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('id', id);
-            formData.append('valor_abatido', valorAbatido);
-
-            fetch('/abater_gasto', {
-                method: 'POST',
-                body: formData
-            })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        alert("Erro ao abater: " + data.error);
-                    }
-                });
-        }
-
-        // Fechar ao clicar fora
-        window.onclick = function (event) {
-            if (event.target.classList.contains('detalhe-overlay')) {
-                event.target.style.display = 'none';
-            }
-        }
-    </script>
+                                    // Fechar ao clicar fora
+                                    window.onclick = function (event) {
+                                        if (event.target.classList.contains('detalhe-overlay')) {
+                                            event.target.style.display = 'none';
+                                        }
+                                    }
+                                </script>
 </body>
 
 </html>

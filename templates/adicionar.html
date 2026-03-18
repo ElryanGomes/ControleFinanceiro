@@ -51,6 +51,8 @@
                         <i class="bi bi-cash-stack"></i> Meus Ganhos
                     </h3>
                     <form action="{{ url_for('adicionar_ganho') }}" method="POST">
+                        <input type="hidden" name="mes_contexto" value="{{ mes_selecionado }}">
+                        <input type="hidden" name="ano_contexto" value="{{ ano_selecionado }}">
                         <div class="mb-3">
                             <label class="form-label">Nome / Origem</label>
                             <input type="text" name="nome_ganho" class="form-control"
@@ -77,6 +79,8 @@
                         <i class="bi bi-cart-plus"></i> Registrar Gasto
                     </h3>
                     <form action="{{ url_for('adicionar_gasto') }}" method="POST">
+                        <input type="hidden" name="mes_contexto" value="{{ mes_selecionado }}">
+                        <input type="hidden" name="ano_contexto" value="{{ ano_selecionado }}">
                         <div class="row">
                             <div class="col-md-7 mb-3">
                                 <label class="form-label">O que você comprou?</label>
