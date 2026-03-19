@@ -278,6 +278,44 @@ def excluir_gasto(id):
         return {"success": True}
     except Exception as e:
         return {"success": False, "error": str(e)}
+    
+@app.route('/historico')
+def historico():
+    # Pega os filtros da URL
+    termo_busca = request.args.get('busca', '').lower()
+    mes_filtro = request.args.get('mes_filtro', type=int)
+
+    # Busca tudo
+    gastos = Gasto.query.all()
+    ganhos = Ganho.query.all()
+
+    # Junta tudo em uma lista para facilitar
+    todos_itens = []
+    for g in gastos:
+        todos_itens.append({'nome': g.nome, 'valor': g.valor_total, 'tipo': g.tipo, 'mes': g.mes, 'ano': g.ano, 'dia': g.dia if hasattr(g, 'dia') else '01', 'is_gasto': True})
+    for g in ganhos:
+        todos_itens.append({'nome': g.nome, 'valor': g.valor, 'tipo': 'Ganho', 'mes': g.mes, 'ano': g.ano, 'dia': g.dia if hasattr(g, 'dia') else '01', 'is_gasto': False})
+
+    # Aplica Filtros de Pesquisa
+    if termo_busca:
+        todos_itens = [i for i in todos_itens if termo_busca in i['nome'].lower()]
+    if mes_filtro:
+        todos_itens = [i for i in todos_itens if i['mes'] == mes_filtro]
+
+    # Agrupa por Mês/Ano: { (3, 2026): [itens], (2, 2026): [itens] }
+    historico_agrupado = {}
+    meses_nomes = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+
+    # Ordena por data (mais recente primeiro)
+    todos_itens.sort(key=lambda x: (x['ano'], x['mes']), reverse=True)
+
+    for item in todos_itens:
+        chave = f"{meses_nomes[item['mes']]} {item['ano']}"
+        if chave not in historico_agrupado:
+            historico_agrupado[chave] = []
+        historico_agrupado[chave].append(item)
+
+    return render_template('historico.html', historico=historico_agrupado, termo=termo_busca, mes_selecionado=mes_filtro)
 
 
 if __name__ == "__main__":

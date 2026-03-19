@@ -1,0 +1,72 @@
+/* Largura expandida para o container principal */
+.container-historico {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Barra de Filtros Estilo Dashboard */
+.barra-filtros { 
+    background: #1a1a1e; 
+    border-radius: 15px; 
+    padding: 15px 25px; 
+    border: 1px solid #2d2d35;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* Inputs com a paleta exata */
+.input-dark { 
+    background: #0f0f12 !important; 
+    border: 1px solid #3f3f46 !important; 
+    color: #ffffff !important; 
+    border-radius: 10px !important;
+    transition: border-color 0.2s;
+}
+
+.input-dark:focus {
+    border-color: #8c52ff !important; /* Roxo principal */
+    box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.2) !important;
+}
+
+/* Títulos de meses com linha guia */
+.mes-header { 
+    color: #a1a1aa; 
+    font-size: 0.85rem;
+    font-weight: 700; 
+    text-transform: uppercase; 
+    margin: 45px 0 15px 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.mes-header::after { content: ""; flex-grow: 1; height: 1px; background: #2d2d35; }
+
+/* Balões Flutuantes com a Paleta */
+.item-balao {
+    background: #1a1a1e;
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #2d2d35;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.item-balao:hover {
+    transform: translateX(5px);
+    border-color: #8c52ff;
+    background: #202026;
+}
+
+/* Badge de Data */
+.data-badge {
+    background: #25252b;
+    padding: 6px 14px;
+    border-radius: 10px;
+    text-align: center;
+    margin-right: 20px;
+    border: 1px solid #3f3f46;
+}
+.data-badge .dia { display: block; font-size: 1.2rem; font-weight: 800; color: #8c52ff; }
+.data-badge .mes-label { font-size: 0.6rem; color: #a1a1aa; text-transform: uppercase; }

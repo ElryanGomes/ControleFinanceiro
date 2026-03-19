@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="static/css/historico.css">
+    <title>Histórico</title>
+</head>
+
+<body style="background-color: #0f0f12; color: white;">
+
+    <header class="header-main px-5 py-3">
+        <nav class="d-flex justify-content-between align-items-center">
+            <div class="nav-paginas d-flex gap-4">
+                <a href="{{ url_for('index') }}" class="nav-link-custom">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('adicionar') }}" class="nav-link-custom">
+                    <i class="bi bi-plus-circle"></i> Adicionar
+                </a>
+                <a href="{{ url_for('editar') }}" class="nav-link-custom">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <a href="{{ url_for('historico') }}" class="nav-link-custom active">
+                    <i class="bi bi-clock-history"></i> Histórico
+                </a>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-trophy"></i> Metas
+                </a>
+                <a href="#" class="nav-link-custom">
+                    <i class="bi bi-gear"></i> Ajustes
+                </a>
+            </div>
+
+            <div class="titulo-pagina text-end">
+                <h2 class="m-0 tracking-widest text-uppercase h4">
+                    Controle <span style="color: var(--accent-cyan)">Financeiro</span>
+                    <small class="ms-2 opacity-50" style="font-size: 0.8rem;">| Histórico</small>
+                </h2>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container-historico py-5 px-4">
+    
+    <form action="/historico" method="GET" class="barra-filtros d-flex gap-3 align-items-center mb-5">
+        <div class="flex-grow-1 position-relative">
+            <i class="bi bi-search position-absolute" style="left: 15px; top: 12px; color: #71717a;"></i>
+            <input type="text" name="busca" class="form-control input-dark ps-5" placeholder="Pesquisar por nome ou categoria..." value="{{ termo }}">
+        </div>
+        
+        <div style="min-width: 180px;">
+            <select name="mes_filtro" class="form-select input-dark" onchange="this.form.submit()">
+                <option value="">Todos os Meses</option>
+                {% set nomes_meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'] %}
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}" {% if mes_selecionado == i %}selected{% endif %}>{{ nomes_meses[i-1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-purple px-4" style="background: #8c52ff; color: white; border-radius: 10px; height: 45px; font-weight: 600;">
+            Filtrar
+        </button>
+    </form>
+
+    {% if not historico %}
+        <div class="text-center py-5">
+            <div class="mb-3" style="font-size: 4rem; color: #2d2d35;"><i class="bi bi-inbox"></i></div>
+            <h4 class="text-secondary">Nada por aqui...</h4>
+            <p class="text-muted">Tente mudar o filtro ou adicione um novo registro.</p>
+            <a href="/adicionar" class="btn btn-link text-decoration-none" style="color: #8c52ff;">Adicionar Item agora &rarr;</a>
+        </div>
+    {% else %}
+        {% for mes_ano, itens in historico.items() %}
+            <div class="mes-header">{{ mes_ano }}</div>
+            
+            {% for item in itens %}
+            <div class="item-balao">
+                <div class="d-flex align-items-center">
+                    <div class="data-badge">
+                        <span class="dia">{{ item.dia if item.dia else '18' }}</span>
+                        <span class="mes-label">{{ mes_ano[:3] }}</span>
+                    </div>
+                    
+                    <div>
+                        <h6 class="mb-0 fw-bold" style="letter-spacing: 0.3px;">{{ item.nome }}</h6>
+                        <div class="d-flex gap-2 mt-1">
+                            <span class="badge" style="background: #2d2d35; color: #a1a1aa; font-weight: 500; font-size: 0.65rem;">
+                                {{ item.tipo|upper }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end d-flex align-items-center gap-4">
+                    <div class="valor-info">
+                        <span class="{{ 'text-danger' if item.is_gasto else 'text-success' }} fw-bold" style="font-size: 1.2rem;">
+                            {{ '-' if item.is_gasto else '+' }} R$ {{ "%.2f"|format(item.valor) }}
+                        </span>
+                    </div>
+                    <!-- <a href="#" class="btn p-0 text-secondary" style="font-size: 1.2rem;"><i class="bi bi-three-dots-vertical"></i></a> -->
+                </div>
+            </div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+</main>
+</body>
+
+</html>
