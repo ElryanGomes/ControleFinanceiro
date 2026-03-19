@@ -7,8 +7,11 @@ import os
 app = Flask(__name__)
 
 # Configuração do Banco de Dados
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'financas.db')
+base_dir = os.path.abspath(os.path.dirname(__file__))
+if 'elryan' in base_dir:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/elryan/projetoFinanceiro/financas.db'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(base_dir, 'financas.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -362,5 +365,5 @@ def progresso():
                            recorde_ganho=mes_recorde_ganho,
                            recorde_gasto=mes_recorde_gasto)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
