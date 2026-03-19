@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+# from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__)
@@ -317,6 +318,49 @@ def historico():
 
     return render_template('historico.html', historico=historico_agrupado, termo=termo_busca, mes_selecionado=mes_filtro)
 
+@app.route('/progresso')
+def progresso():
+    meses_nomes = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+    hoje = datetime.now()
+    
+    labels, dados_entradas, dados_saidas = [], [], []
+    total_economia = 0
+    mes_recorde_ganho = {"nome": "---", "valor": 0}
+    mes_recorde_gasto = {"nome": "---", "valor": 0}
+
+    # Analisamos os últimos 6 meses
+    for i in range(5, -1, -1):
+        # Lógica manual para voltar os meses
+        m = hoje.month - i
+        a = hoje.year
+        while m <= 0:
+            m += 12
+            a -= 1
+        
+        entradas = sum(g.valor for g in Ganho.query.filter_by(mes=m, ano=a).all())
+        saidas = sum(g.valor_total for g in Gasto.query.filter_by(mes=m, ano=a).all())
+        economia = entradas - saidas
+        
+        labels.append(f"{meses_nomes[m]}/{a}")
+        dados_entradas.append(float(entradas))
+        dados_saidas.append(float(saidas))
+        total_economia += economia
+
+        # Verifica Recordes
+        if entradas > mes_recorde_ganho["valor"]:
+            mes_recorde_ganho = {"nome": f"{meses_nomes[m]}/{a}", "valor": entradas}
+        if saidas > mes_recorde_gasto["valor"]:
+            mes_recorde_gasto = {"nome": f"{meses_nomes[m]}/{a}", "valor": saidas}
+
+    media_economia = total_economia / 6 if total_economia > 0 else 0
+
+    return render_template('progresso.html', 
+                           labels=labels, 
+                           entradas=dados_entradas, 
+                           saidas=dados_saidas,
+                           media=media_economia,
+                           recorde_ganho=mes_recorde_ganho,
+                           recorde_gasto=mes_recorde_gasto)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,45 @@
+/* Container principal largo */
+.container-progresso {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Estilo dos Cards (Baloes) */
+.card-analise {
+    background: #1a1a1e;
+    border-radius: 15px;
+    border: 1px solid #2d2d35;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    height: 100%;
+}
+
+.stat-box-progresso {
+    background: #1a1a1e;
+    border-radius: 15px;
+    border: 1px solid #2d2d35;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* Títulos no estilo do Dashboard */
+.titulo-secao {
+    color:#0ccaf0;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.text-roxo { color: #0ccaf0; }
+.text-muted-custom { color: #0ccaf0; font-size: 0.85rem; }
+
+/* Mini cards debaixo */
+.mini-card {
+    background: #1a1a1e;
+    border-radius: 12px;
+    border: 1px solid #2d2d35;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
